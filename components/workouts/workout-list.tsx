@@ -123,7 +123,7 @@ export default function WorkoutList() {
   return (
     <>
       {initialData.map((item) => (
-        <WorkoutItem workout={item} />
+        <WorkoutItem key={`workout-${item.id}`} workout={item} />
       ))}
     </>
   )
