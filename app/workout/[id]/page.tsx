@@ -95,9 +95,11 @@ export default function Workout({ params }: { params: { id: string } }) {
     setExercise(workout?.items[0]!)
   }
   function goNext() {
-    setTime(workout?.items[exerciseIndex + 1]!.duration!)
+    const nextExercise = workout?.items[exerciseIndex + 1]!
+    setTime(nextExercise.duration!)
     setExerciseIndex(exerciseIndex + 1)
-    setExercise(workout?.items[exerciseIndex + 1]!)
+    setExercise(nextExercise)
+    if (nextExercise.duration > 0) startTimer()
   }
 
   useEffect(() => {
