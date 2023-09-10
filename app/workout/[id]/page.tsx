@@ -3,7 +3,7 @@
 import { useRouter } from "next/navigation"
 import { Button } from "@/components/ui/button"
 import { initialData } from "@/components/workouts/workout-list"
-import { Play, Square, Pause, ListRestart } from "lucide-react"
+import { Play, Square, Pause, ListRestart, StepForward } from "lucide-react"
 import { useEffect, useRef, useState } from "react"
 import { Dumbbell, MoveLeft } from "lucide-react"
 import useTimer from "@/hooks/useTimer"
@@ -89,88 +89,92 @@ export default function Workout({ params }: { params: { id: string } }) {
   const { isActive, progress, setTime, startTimer, pauseTimer, resetTimer } =
     useTimer(exercise.duration)
 
-  useEffect(() => {
-    if (progress === -1 && exerciseIndex === workout?.items.length! - 1) {
-      resetTimer()
-      setExerciseIndex(0)
-      setExercise(workout?.items[0]!)
-    }
+  function resetAll() {
+    resetTimer()
+    setExerciseIndex(0)
+    setExercise(workout?.items[0]!)
+  }
+  function goNext() {
+    setTime(workout?.items[exerciseIndex + 1]!.duration!)
+    setExerciseIndex(exerciseIndex + 1)
+    setExercise(workout?.items[exerciseIndex + 1]!)
+  }
 
-    if (progress === -1 && exerciseIndex < workout?.items.length! - 1) {
-      setTime(workout?.items[exerciseIndex + 1]!.duration!)
-      setExerciseIndex(exerciseIndex + 1)
-      setExercise(workout?.items[exerciseIndex + 1]!)
-    }
+  useEffect(() => {
+    if (exercise.duration === 0) pauseTimer()
+  }, [exercise])
+
+  useEffect(() => {
+    if (progress === -1 && exerciseIndex === workout?.items.length! - 1)
+      resetAll()
+
+    if (progress === -1 && exerciseIndex < workout?.items.length! - 1) goNext()
   }, [progress])
 
   return (
-    <main className="flex h-screen flex-col items-center px-4 py-4 lg:py-14">
-      <div className="flex h-full w-full flex-col gap-2 lg:max-w-6xl lg:flex-row">
-        <section className="flex h-full flex-1 flex-col items-center rounded-lg border p-4">
-          <section className="flex h-max w-full justify-between">
-            <Button
-              className="flex gap-2 text-lg"
-              variant={"ghost"}
-              disabled={isActive}
-              onClick={() => router.replace("/")}
-            >
-              <MoveLeft /> Exit
-            </Button>
+    <div className="flex h-full w-full flex-col gap-2 animate-in fade-in lg:max-w-6xl lg:flex-row">
+      <section className="flex h-full flex-1 flex-col items-center rounded-lg border p-4">
+        <section className="flex h-max w-full justify-between">
+          <Button
+            className="flex gap-2 text-lg"
+            variant={"ghost"}
+            disabled={isActive}
+            onClick={() => router.replace("/")}
+          >
+            <MoveLeft /> Exit
+          </Button>
 
-            <Button
-              className="flex gap-2 text-lg"
-              variant={"ghost"}
-              onClick={() => {
-                resetTimer()
-                setExerciseIndex(0)
-                setExercise(workout?.items[0]!)
-              }}
-            >
-              <ListRestart /> Reset
-            </Button>
-          </section>
-
-          <h1 className="mt-12 text-4xl font-black lg:text-7xl">
-            {workout?.title}
-          </h1>
-
-          {exercise.duration > 0 && (
-            <div className="mt-2 h-56 lg:mt-10 lg:h-80">
-              <SemicircleProgressBar
-                duration={exercise.duration}
-                isRest={exercise.type === "rest"}
-                progress={progress}
-              />
-            </div>
-          )}
-
-          {exercise.duration === 0 && (
-            <h2 className="mt-16 text-xl font-semibold">
-              {exercise.sets}x{exercise.repetitions}
-            </h2>
-          )}
-
-          <h1 className="text-3xl font-semibold">{exercise.name}</h1>
+          <Button
+            className="flex gap-2 text-lg"
+            variant={"ghost"}
+            onClick={() => resetAll()}
+          >
+            <ListRestart /> Reset
+          </Button>
         </section>
 
-        <section className="flex h-full flex-1 flex-col gap-2">
-          <section className="flex h-max gap-2">
-            <Button
-              className="flex h-[78px] w-full gap-2 px-0 py-8 text-lg"
-              {...(!isActive && progress === exercise.duration
-                ? { disabled: true }
-                : {})}
-              onClick={() => resetTimer()}
-              variant={
-                !isActive && progress === exercise.duration
-                  ? "outline"
-                  : "destructive"
-              }
-            >
-              <Square fill="currentColor" />
-              Stop
-            </Button>
+        <h1 className="mt-12 text-4xl font-black lg:text-7xl">
+          {workout?.title}
+        </h1>
 
+        {exercise.duration > 0 && (
+          <div className="mt-2 h-56 lg:mt-10 lg:h-80">
+            <SemicircleProgressBar
+              duration={exercise.duration}
+              isRest={exercise.type === "rest"}
+              progress={progress}
+            />
+          </div>
+        )}
+
+        {exercise.duration === 0 && (
+          <h2 className="mt-16 text-xl font-semibold">
+            {exercise.sets}x{exercise.repetitions}
+          </h2>
+        )}
+
+        <h1 className="text-3xl font-semibold">{exercise.name}</h1>
+      </section>
+
+      <section className="flex h-full flex-1 flex-col gap-2 overflow-hidden">
+        <section className="flex h-max gap-2">
+          <Button
+            className="flex h-[78px] w-full gap-2 px-0 py-8 text-lg"
+            {...(!isActive && progress === exercise.duration
+              ? { disabled: true }
+              : {})}
+            onClick={() => resetTimer()}
+            variant={
+              !isActive && progress === exercise.duration
+                ? "outline"
+                : "destructive"
+            }
+          >
+            <Square fill="currentColor" />
+            Stop
+          </Button>
+
+          {exercise.duration > 0 ? (
             <Button
               className="flex h-[78px] w-full gap-2 px-0 py-8 text-lg"
               onClick={() => {
@@ -191,25 +195,35 @@ export default function Workout({ params }: { params: { id: string } }) {
                 ? "Pause"
                 : null}
             </Button>
-          </section>
-
-          <ul className="flex h-full w-full flex-col place-content-start gap-2 overflow-y-auto overflow-x-hidden">
-            {workout?.items.map((ex, i) => (
-              <li
-                key={`${workout.id}${ex.name}${i}`}
-                className="flex w-full cursor-pointer select-none items-center rounded-lg border px-2 py-4"
-              >
-                <p className="mr-2 w-10 text-end text-sm font-bold">
-                  {ex.duration === 0
-                    ? `${ex.sets}x${ex.repetitions}`
-                    : `${ex.duration.toString()}s`}
-                </p>
-                <h4 className="text-lg">{ex.name}</h4>
-              </li>
-            ))}
-          </ul>
+          ) : (
+            <Button
+              className="flex h-[78px] w-full gap-2 px-0 py-8 text-lg"
+              onClick={() => {
+                if (exerciseIndex === workout?.items.length! - 1) resetAll()
+                else goNext()
+              }}
+            >
+              Next <StepForward className="fill-background" />
+            </Button>
+          )}
         </section>
-      </div>
-    </main>
+
+        <ul className="flex h-full w-full flex-col place-content-start gap-2 overflow-y-auto overflow-x-hidden">
+          {workout?.items.map((ex, i) => (
+            <li
+              key={`${workout.id}${ex.name}${i}`}
+              className="flex w-full cursor-pointer select-none items-center rounded-lg border px-2 py-4"
+            >
+              <p className="mr-2 w-10 text-end text-sm font-bold">
+                {ex.duration === 0
+                  ? `${ex.sets}x${ex.repetitions}`
+                  : `${ex.duration.toString()}s`}
+              </p>
+              <h4 className="text-lg">{ex.name}</h4>
+            </li>
+          ))}
+        </ul>
+      </section>
+    </div>
   )
 }

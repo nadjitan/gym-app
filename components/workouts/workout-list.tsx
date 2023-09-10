@@ -72,7 +72,7 @@ export const initialData: Workout[] = [
         sets: 3,
         repetitions: 12,
       },
-      { name: "Rest", type: "rest", duration: 60, sets: 0, repetitions: 0 },
+      { name: "Rest", type: "rest", duration: 3, sets: 0, repetitions: 0 },
       {
         name: "Rope Pulldowns",
         type: "work",

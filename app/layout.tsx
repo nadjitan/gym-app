@@ -20,7 +20,9 @@ export default function RootLayout({
     <html lang="en" suppressHydrationWarning={true}>
       <body className={spaceGrotesk.className} suppressHydrationWarning={true}>
         <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
-          {children}
+          <main className="flex h-screen flex-col items-center px-4 py-4 lg:py-14">
+            {children}
+          </main>
         </ThemeProvider>
       </body>
     </html>
