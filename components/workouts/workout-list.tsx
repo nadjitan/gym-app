@@ -13,6 +13,7 @@ export const WORKOUT_TARGET = [
 ] as const
 
 export type Exercise = {
+  id: string
   name: string
   type: "work" | "rest"
   duration: number
@@ -43,12 +44,75 @@ export const initialData: Workout[] = [
       "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.",
     target: "Legs",
     items: [
-      { name: "Squats", type: "work", duration: 3, sets: 0, repetitions: 0 },
-      { name: "Rest", type: "rest", duration: 3, sets: 0, repetitions: 0 },
       {
+        id: "0",
+        name: "Squats",
+        type: "work",
+        duration: 2,
+        sets: 0,
+        repetitions: 0,
+      },
+      {
+        id: "1",
+        name: "Rest",
+        type: "rest",
+        duration: 2,
+        sets: 0,
+        repetitions: 0,
+      },
+      {
+        id: "2",
         name: "Barbell Squat",
         type: "work",
-        duration: 3,
+        duration: 2,
+        sets: 0,
+        repetitions: 0,
+      },
+      {
+        id: "3",
+        name: "Barbell Squat",
+        type: "work",
+        duration: 2,
+        sets: 0,
+        repetitions: 0,
+      },
+      {
+        id: "4",
+        name: "Barbell Squat",
+        type: "work",
+        duration: 2,
+        sets: 0,
+        repetitions: 0,
+      },
+      {
+        id: "5",
+        name: "Barbell Squat",
+        type: "work",
+        duration: 2,
+        sets: 0,
+        repetitions: 0,
+      },
+      {
+        id: "6",
+        name: "Barbell Squat",
+        type: "work",
+        duration: 2,
+        sets: 0,
+        repetitions: 0,
+      },
+      {
+        id: "7",
+        name: "Barbell Squat",
+        type: "work",
+        duration: 2,
+        sets: 0,
+        repetitions: 0,
+      },
+      {
+        id: "8",
+        name: "Barbell Squat",
+        type: "work",
+        duration: 2,
         sets: 0,
         repetitions: 0,
       },
@@ -66,14 +130,23 @@ export const initialData: Workout[] = [
     target: "Arms",
     items: [
       {
+        id: "0",
         name: "Dumbell curls",
         type: "work",
         duration: 0,
         sets: 3,
         repetitions: 12,
       },
-      { name: "Rest", type: "rest", duration: 3, sets: 0, repetitions: 0 },
       {
+        id: "1",
+        name: "Rest",
+        type: "rest",
+        duration: 3,
+        sets: 0,
+        repetitions: 0,
+      },
+      {
+        id: "2",
         name: "Rope Pulldowns",
         type: "work",
         duration: 0,

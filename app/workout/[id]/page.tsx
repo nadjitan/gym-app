@@ -5,8 +5,10 @@ import { Button } from "@/components/ui/button"
 import { initialData } from "@/components/workouts/workout-list"
 import { Play, Square, Pause, ListRestart, StepForward } from "lucide-react"
 import { useEffect, useRef, useState } from "react"
-import { Dumbbell, MoveLeft } from "lucide-react"
+import { Dumbbell, MoveLeft, ArrowRight } from "lucide-react"
+import { animate, stagger, motion } from "framer-motion"
 import useTimer from "@/hooks/useTimer"
+import { ListButton } from "@/components/ui/list-button"
 
 interface SemicircleProgressBarProps {
   duration: number
@@ -14,7 +16,6 @@ interface SemicircleProgressBarProps {
   progress: number
 }
 
-/** @see https://stackoverflow.com/a/50650034 */
 const SemicircleProgressBar: React.FC<SemicircleProgressBarProps> = ({
   duration,
   isRest,
@@ -63,6 +64,8 @@ const SemicircleProgressBar: React.FC<SemicircleProgressBarProps> = ({
           y={100 / 2 - 22 / 2 + 5}
           strokeWidth={2.7}
           size={22}
+          // TODO: Rotate not working
+          className="rotate-45"
         />
       )}
 
@@ -78,6 +81,8 @@ const SemicircleProgressBar: React.FC<SemicircleProgressBarProps> = ({
     </svg>
   )
 }
+
+const staggerMenuItems = stagger(0.1, { startDelay: 0.15 })
 
 export default function Workout({ params }: { params: { id: string } }) {
   const router = useRouter()
@@ -101,6 +106,18 @@ export default function Workout({ params }: { params: { id: string } }) {
     setExercise(nextExercise)
     if (nextExercise.duration > 0) startTimer()
   }
+
+  useEffect(() => {
+    animate(
+      ".exercise-item",
+      { opacity: [0, 1], scale: [0, 1] },
+      {
+        duration: 0.2,
+        delay: staggerMenuItems,
+        type: "spring",
+      },
+    )
+  }, [])
 
   useEffect(() => {
     if (exercise.duration === 0) pauseTimer()
@@ -135,7 +152,7 @@ export default function Workout({ params }: { params: { id: string } }) {
           </Button>
         </section>
 
-        <h1 className="mt-12 text-4xl font-black lg:text-7xl">
+        <h1 className="mt-12 text-4xl font-black underline lg:text-7xl">
           {workout?.title}
         </h1>
 
@@ -210,21 +227,40 @@ export default function Workout({ params }: { params: { id: string } }) {
           )}
         </section>
 
-        <ul className="flex h-full w-full flex-col place-content-start gap-2 overflow-y-auto overflow-x-hidden">
+        <motion.div
+          layoutScroll
+          className="flex h-full w-full flex-col place-content-start gap-2 overflow-y-auto overflow-x-hidden"
+        >
           {workout?.items.map((ex, i) => (
-            <li
+            <div
+              className="exercise-item flex items-center gap-2"
               key={`${workout.id}${ex.name}${i}`}
-              className="flex w-full cursor-pointer select-none items-center rounded-lg border px-2 py-4"
             >
-              <p className="mr-2 w-10 text-end text-sm font-bold">
-                {ex.duration === 0
-                  ? `${ex.sets}x${ex.repetitions}`
-                  : `${ex.duration.toString()}s`}
-              </p>
-              <h4 className="text-lg">{ex.name}</h4>
-            </li>
+              {exercise.id === ex.id && (
+                <motion.div layoutId="active-exercise">
+                  <ArrowRight strokeWidth={2.5} />
+                </motion.div>
+              )}
+              <motion.div layout className="w-full">
+                <ListButton
+                  className="h-14 w-full"
+                  variant={"outline"}
+                  onClick={() => {
+                    setExercise(ex)
+                    resetTimer()
+                  }}
+                >
+                  <p className="mr-2 w-10 text-end text-sm font-bold transition-all">
+                    {ex.duration === 0
+                      ? `${ex.sets}x${ex.repetitions}`
+                      : `${ex.duration.toString()}s`}
+                  </p>
+                  <h4 className="text-lg">{ex.name}</h4>
+                </ListButton>
+              </motion.div>
+            </div>
           ))}
-        </ul>
+        </motion.div>
       </section>
     </div>
   )
