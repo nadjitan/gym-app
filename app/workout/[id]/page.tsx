@@ -1,56 +1,29 @@
 "use client"
 
+import { useRouter } from "next/navigation"
 import { Button } from "@/components/ui/button"
 import { initialData } from "@/components/workouts/workout-list"
-import { Play, Square, Pause } from "lucide-react"
+import { Play, Square, Pause, ListRestart } from "lucide-react"
 import { useEffect, useRef, useState } from "react"
-import { atom, useAtom } from "jotai"
-
-const workoutPropsAtom = atom({ isPaused: true, isStopPressed: false })
+import { Dumbbell, MoveLeft } from "lucide-react"
+import useTimer from "@/hooks/useTimer"
 
 interface SemicircleProgressBarProps {
-  /** Total duration in seconds */
   duration: number
-  isPaused: boolean
+  isRest: boolean
+  progress: number
 }
 
 /** @see https://stackoverflow.com/a/50650034 */
 const SemicircleProgressBar: React.FC<SemicircleProgressBarProps> = ({
   duration,
+  isRest,
+  progress,
 }) => {
-  const [progress, setProgress] = useState<number>(duration)
-  const [workoutProps, setWorkoutProps] = useAtom(workoutPropsAtom)
   const pathEl = useRef<SVGPathElement>(null)
 
-  useEffect(() => {
-    if (workoutProps.isStopPressed) {
-      setProgress(duration)
-      setWorkoutProps({ ...workoutProps, isStopPressed: false })
-    }
-  }, [workoutProps.isStopPressed])
-
-  useEffect(() => {
-    if (progress === 0) setWorkoutProps({ ...workoutProps, isPaused: true })
-  }, [progress])
-
-  useEffect(() => {
-    const interval = setInterval(() => {
-      if (workoutProps.isPaused) return
-
-      setProgress(prevProgress => {
-        if (prevProgress > 0) return prevProgress - 1
-        else {
-          clearInterval(interval)
-          return 0
-        }
-      })
-    }, 1000)
-
-    return () => clearInterval(interval)
-  }, [duration, workoutProps.isPaused])
-
   return (
-    <svg viewBox="0 0 110 100" className="h-full">
+    <svg viewBox="0 0 110 100" className="h-full" fill="currentColor">
       <linearGradient x1="0" y1="0" x2="0" y2="100%">
         <stop offset="0%" />
         <stop offset="100%" />
@@ -58,7 +31,7 @@ const SemicircleProgressBar: React.FC<SemicircleProgressBarProps> = ({
       <path
         strokeLinecap="round"
         strokeWidth={6}
-        className="grey stroke-gray-100"
+        className="stroke-gray-200 opacity-50 dark:opacity-20"
         d="M30,90 A40,40 0 1,1 80,90"
         fill="none"
       />
@@ -69,64 +42,172 @@ const SemicircleProgressBar: React.FC<SemicircleProgressBarProps> = ({
         strokeDashoffset={Math.round(198 * (progress / duration))}
         strokeWidth={6}
         fill="none"
-        className="stroke-blue-600 transition-[stroke-dashoffset_.2s_cubic-bezier(.7,0,.3,1)]"
+        className="stroke-green-600 transition-[stroke-dashoffset_.2s_cubic-bezier(.7,0,.3,1)]"
         d="M30,90 A40,40 0 1,1 80,90"
       />
 
-      <text x="50%" y="90%" dominantBaseline="middle" textAnchor="middle">
-        {progress}
+      {isRest ? (
+        <text
+          x="50%"
+          y="55%"
+          dominantBaseline="middle"
+          textAnchor="middle"
+          className="text-foreground"
+        >
+          😴
+        </text>
+      ) : (
+        <Dumbbell
+          // https://stackoverflow.com/a/46828111
+          x={110 / 2 - 22 / 2}
+          y={100 / 2 - 22 / 2 + 5}
+          strokeWidth={2.7}
+          size={22}
+        />
+      )}
+
+      <text
+        x="50%"
+        y="90%"
+        dominantBaseline="middle"
+        textAnchor="middle"
+        className="text-foreground"
+      >
+        {progress !== -1 ? progress : 0}
       </text>
     </svg>
   )
 }
 
 export default function Workout({ params }: { params: { id: string } }) {
-  const [workoutProps, setWorkoutProps] = useAtom(workoutPropsAtom)
-  const workout = initialData.find(item => item.id === params.id)
-  const [exercise, setExercise] = useState(workout?.items[0]!)
+  const router = useRouter()
+
+  const workout = initialData.find((item) => item.id === params.id)
+  const [exerciseIndex, setExerciseIndex] = useState(0)
+  const [exercise, setExercise] = useState(workout?.items[exerciseIndex]!)
+
+  const { isActive, progress, setTime, startTimer, pauseTimer, resetTimer } =
+    useTimer(exercise.duration)
+
+  useEffect(() => {
+    if (progress === -1 && exerciseIndex === workout?.items.length! - 1) {
+      resetTimer()
+      setExerciseIndex(0)
+      setExercise(workout?.items[0]!)
+    }
+
+    if (progress === -1 && exerciseIndex < workout?.items.length! - 1) {
+      setTime(workout?.items[exerciseIndex + 1]!.duration!)
+      setExerciseIndex(exerciseIndex + 1)
+      setExercise(workout?.items[exerciseIndex + 1]!)
+    }
+  }, [progress])
 
   return (
-    <main className="flex flex-col h-screen items-center py-14 px-4">
-      <div className="lg:max-w-6xl w-full h-full flex gap-2">
-        <section className="border h-full flex flex-col items-center flex-1 rounded-lg p-4">
-          <h1 className="text-7xl font-black">{workout?.title}</h1>
-          <div className="h-80">
-            <SemicircleProgressBar
-              duration={5}
-              isPaused={workoutProps.isPaused}
-            />
-          </div>
+    <main className="flex h-screen flex-col items-center px-4 py-4 lg:py-14">
+      <div className="flex h-full w-full flex-col gap-2 lg:max-w-6xl lg:flex-row">
+        <section className="flex h-full flex-1 flex-col items-center rounded-lg border p-4">
+          <section className="flex h-max w-full justify-between">
+            <Button
+              className="flex gap-2 text-lg"
+              variant={"ghost"}
+              disabled={isActive}
+              onClick={() => router.replace("/")}
+            >
+              <MoveLeft /> Exit
+            </Button>
+
+            <Button
+              className="flex gap-2 text-lg"
+              variant={"ghost"}
+              onClick={() => {
+                resetTimer()
+                setExerciseIndex(0)
+                setExercise(workout?.items[0]!)
+              }}
+            >
+              <ListRestart /> Reset
+            </Button>
+          </section>
+
+          <h1 className="mt-12 text-4xl font-black lg:text-7xl">
+            {workout?.title}
+          </h1>
+
+          {exercise.duration > 0 && (
+            <div className="mt-2 h-56 lg:mt-10 lg:h-80">
+              <SemicircleProgressBar
+                duration={exercise.duration}
+                isRest={exercise.type === "rest"}
+                progress={progress}
+              />
+            </div>
+          )}
+
+          {exercise.duration === 0 && (
+            <h2 className="mt-16 text-xl font-semibold">
+              {exercise.sets}x{exercise.repetitions}
+            </h2>
+          )}
+
+          <h1 className="text-3xl font-semibold">{exercise.name}</h1>
         </section>
 
-        <section className="h-full flex flex-col gap-2 flex-1">
+        <section className="flex h-full flex-1 flex-col gap-2">
           <section className="flex h-max gap-2">
             <Button
-              className="flex flex-1 gap-2 text-lg py-8"
-              {...(workoutProps.isPaused ? { disabled: true } : {})}
-              onClick={() =>
-                setWorkoutProps({ isStopPressed: true, isPaused: true })
+              className="flex h-[78px] w-full gap-2 px-0 py-8 text-lg"
+              {...(!isActive && progress === exercise.duration
+                ? { disabled: true }
+                : {})}
+              onClick={() => resetTimer()}
+              variant={
+                !isActive && progress === exercise.duration
+                  ? "outline"
+                  : "destructive"
               }
-              variant={!workoutProps.isPaused ? "destructive" : "outline"}>
+            >
               <Square fill="currentColor" />
               Stop
             </Button>
 
             <Button
-              className="flex flex-1 gap-2 text-lg py-8"
+              className="flex h-[78px] w-full gap-2 px-0 py-8 text-lg"
               onClick={() => {
-                if (!workoutProps.isPaused)
-                  setWorkoutProps({ ...workoutProps, isPaused: true })
-                else setWorkoutProps({ ...workoutProps, isPaused: false })
-              }}>
-              {!workoutProps.isPaused ? (
+                if (isActive) pauseTimer()
+                else startTimer()
+              }}
+            >
+              {isActive ? (
                 <Pause fill="currentColor" />
               ) : (
                 <Play fill="currentColor" />
               )}
-              {!workoutProps.isPaused ? "Pause" : "Start"}
+              {!isActive && exerciseIndex === 0
+                ? "Start"
+                : !isActive && exerciseIndex > 0
+                ? "Continue"
+                : isActive
+                ? "Pause"
+                : null}
             </Button>
           </section>
-          <section className="border h-full flex flex-1 rounded-lg p-4"></section>
+
+          <ul className="flex h-full w-full flex-col place-content-start gap-2 overflow-y-auto overflow-x-hidden">
+            {workout?.items.map((ex, i) => (
+              <li
+                key={`${workout.id}${ex.name}${i}`}
+                className="flex w-full cursor-pointer select-none items-center rounded-lg border px-2 py-4"
+              >
+                <p className="mr-2 w-10 text-end text-sm font-bold">
+                  {ex.duration === 0
+                    ? `${ex.sets}x${ex.repetitions}`
+                    : `${ex.duration.toString()}s`}
+                </p>
+                <h4 className="text-lg">{ex.name}</h4>
+              </li>
+            ))}
+          </ul>
         </section>
       </div>
     </main>
