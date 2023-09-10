@@ -6,7 +6,7 @@ import { initialData } from "@/components/workouts/workout-list"
 import { Play, Square, Pause, ListRestart, StepForward } from "lucide-react"
 import { useEffect, useRef, useState } from "react"
 import { Dumbbell, MoveLeft, ArrowRight } from "lucide-react"
-import { animate, stagger, motion } from "framer-motion"
+import { animate, stagger, motion, Reorder } from "framer-motion"
 import useTimer from "@/hooks/useTimer"
 import { ListButton } from "@/components/ui/list-button"
 
@@ -88,8 +88,11 @@ export default function Workout({ params }: { params: { id: string } }) {
   const router = useRouter()
 
   const workout = initialData.find((item) => item.id === params.id)
+  const [exercises] = useState(workout?.items!)
   const [exerciseIndex, setExerciseIndex] = useState(0)
-  const [exercise, setExercise] = useState(workout?.items[exerciseIndex]!)
+  const [exercise, setExercise] = useState(exercises[exerciseIndex])
+
+  const itemElsRef = useRef<HTMLDivElement[]>([])
 
   const { isActive, progress, setTime, startTimer, pauseTimer, resetTimer } =
     useTimer(exercise.duration)
@@ -97,12 +100,19 @@ export default function Workout({ params }: { params: { id: string } }) {
   function resetAll() {
     resetTimer()
     setExerciseIndex(0)
-    setExercise(workout?.items[0]!)
+    setExercise(exercises[0]!)
+    itemElsRef.current![0].scrollIntoView({
+      behavior: "smooth",
+    })
   }
   function goNext() {
-    const nextExercise = workout?.items[exerciseIndex + 1]!
+    const nextIndex = exerciseIndex + 1
+    const nextExercise = exercises[nextIndex]!
+    itemElsRef.current![nextIndex].scrollIntoView({
+      behavior: "smooth",
+    })
     setTime(nextExercise.duration!)
-    setExerciseIndex(exerciseIndex + 1)
+    setExerciseIndex(nextIndex)
     setExercise(nextExercise)
     if (nextExercise.duration > 0) startTimer()
   }
@@ -124,10 +134,9 @@ export default function Workout({ params }: { params: { id: string } }) {
   }, [exercise])
 
   useEffect(() => {
-    if (progress === -1 && exerciseIndex === workout?.items.length! - 1)
-      resetAll()
+    if (progress === -1 && exerciseIndex === exercises.length! - 1) resetAll()
 
-    if (progress === -1 && exerciseIndex < workout?.items.length! - 1) goNext()
+    if (progress === -1 && exerciseIndex < exercises.length! - 1) goNext()
   }, [progress])
 
   return (
@@ -175,7 +184,7 @@ export default function Workout({ params }: { params: { id: string } }) {
         <h1 className="text-3xl font-semibold">{exercise.name}</h1>
       </section>
 
-      <section className="flex h-full flex-1 flex-col gap-2 overflow-hidden">
+      <section className="relative flex h-full flex-1 flex-col gap-2 overflow-hidden">
         <section className="flex h-max gap-2">
           <Button
             className="flex h-[78px] w-full gap-2 px-0 py-8 text-lg"
@@ -218,7 +227,7 @@ export default function Workout({ params }: { params: { id: string } }) {
             <Button
               className="flex h-[78px] w-full gap-2 px-0 py-8 text-lg"
               onClick={() => {
-                if (exerciseIndex === workout?.items.length! - 1) resetAll()
+                if (exerciseIndex === exercises.length! - 1) resetAll()
                 else goNext()
               }}
             >
@@ -227,40 +236,47 @@ export default function Workout({ params }: { params: { id: string } }) {
           )}
         </section>
 
-        <motion.div
-          layoutScroll
-          className="flex h-full w-full flex-col place-content-start gap-2 overflow-y-auto overflow-x-hidden"
-        >
-          {workout?.items.map((ex, i) => (
-            <div
-              className="exercise-item flex items-center gap-2"
-              key={`${workout.id}${ex.name}${i}`}
-            >
-              {exercise.id === ex.id && (
-                <motion.div layoutId="active-exercise">
-                  <ArrowRight strokeWidth={2.5} />
+        <div className="relative flex h-full w-full flex-col place-content-start gap-2 overflow-y-auto overflow-x-hidden">
+          {exercises.map((ex, i) => {
+            const currItemRef = useRef<HTMLDivElement>(null)
+
+            useEffect(() => {
+              if (currItemRef.current)
+                itemElsRef.current?.push(currItemRef.current!)
+            }, [currItemRef])
+            return (
+              <div
+                ref={currItemRef}
+                className={`exercise-item flex items-center gap-2`}
+                key={`${workout!.id}${ex.name}${i}`}
+              >
+                {exercise.id === ex.id && (
+                  <motion.div layoutId="active-exercise" className="z-20">
+                    <ArrowRight strokeWidth={2.5} />
+                  </motion.div>
+                )}
+                <motion.div layout className="z-10 w-full">
+                  <ListButton
+                    className="h-14 w-full"
+                    variant={"outline"}
+                    onClick={() => {
+                      setExerciseIndex(i)
+                      setExercise(ex)
+                      resetTimer()
+                    }}
+                  >
+                    <p className="mr-2 w-10 text-end text-sm font-bold transition-all">
+                      {ex.duration === 0
+                        ? `${ex.sets}x${ex.repetitions}`
+                        : `${ex.duration.toString()}s`}
+                    </p>
+                    <h4 className="text-lg">{ex.name}</h4>
+                  </ListButton>
                 </motion.div>
-              )}
-              <motion.div layout className="w-full">
-                <ListButton
-                  className="h-14 w-full"
-                  variant={"outline"}
-                  onClick={() => {
-                    setExercise(ex)
-                    resetTimer()
-                  }}
-                >
-                  <p className="mr-2 w-10 text-end text-sm font-bold transition-all">
-                    {ex.duration === 0
-                      ? `${ex.sets}x${ex.repetitions}`
-                      : `${ex.duration.toString()}s`}
-                  </p>
-                  <h4 className="text-lg">{ex.name}</h4>
-                </ListButton>
-              </motion.div>
-            </div>
-          ))}
-        </motion.div>
+              </div>
+            )
+          })}
+        </div>
       </section>
     </div>
   )
