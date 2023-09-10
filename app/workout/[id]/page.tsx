@@ -21,8 +21,6 @@ const SemicircleProgressBar: React.FC<SemicircleProgressBarProps> = ({
   isRest,
   progress,
 }) => {
-  const pathEl = useRef<SVGPathElement>(null)
-
   return (
     <svg viewBox="0 0 110 100" className="h-full" fill="currentColor">
       <linearGradient x1="0" y1="0" x2="0" y2="100%">
@@ -37,7 +35,6 @@ const SemicircleProgressBar: React.FC<SemicircleProgressBarProps> = ({
         fill="none"
       />
       <path
-        ref={pathEl}
         strokeLinecap="round"
         strokeDasharray={198}
         strokeDashoffset={Math.round(198 * (progress / duration))}
@@ -238,17 +235,13 @@ export default function Workout({ params }: { params: { id: string } }) {
 
         <div className="relative flex h-full w-full flex-col place-content-start gap-2 overflow-y-auto overflow-x-hidden">
           {exercises.map((ex, i) => {
-            const currItemRef = useRef<HTMLDivElement>(null)
-
-            useEffect(() => {
-              if (currItemRef.current)
-                itemElsRef.current?.push(currItemRef.current!)
-            }, [currItemRef])
             return (
               <div
-                ref={currItemRef}
+                ref={(el) => {
+                  itemElsRef.current.push(el!)
+                }}
                 className={`exercise-item flex items-center gap-2`}
-                key={`${workout!.id}${ex.name}${i}`}
+                key={`exercise-${ex.id}`}
               >
                 {exercise.id === ex.id && (
                   <motion.div layoutId="active-exercise" className="z-20">
@@ -262,7 +255,7 @@ export default function Workout({ params }: { params: { id: string } }) {
                     onClick={() => {
                       setExerciseIndex(i)
                       setExercise(ex)
-                      resetTimer()
+                      setTime(ex.duration)
                     }}
                   >
                     <p className="mr-2 w-10 text-end text-sm font-bold transition-all">
