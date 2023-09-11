@@ -28,11 +28,7 @@ const SemicircleProgressBar: React.FC<SemicircleProgressBarProps> = ({
   progress,
 }) => {
   return (
-    <svg viewBox="0 0 110 100" className="h-full" fill="currentColor">
-      <linearGradient x1="0" y1="0" x2="0" y2="100%">
-        <stop offset="0%" />
-        <stop offset="100%" />
-      </linearGradient>
+    <svg viewBox="11 15 88 88" className="h-full w-full" fill="currentColor">
       <path
         strokeLinecap="round"
         strokeWidth={6}
@@ -52,10 +48,8 @@ const SemicircleProgressBar: React.FC<SemicircleProgressBarProps> = ({
 
       {isRest ? (
         <text
-          x="50%"
-          y="55%"
-          dominantBaseline="middle"
-          textAnchor="middle"
+          x={11 + 88 / 2 - 22 / 2}
+          y={15 + 88 / 2 - 22 / 2 + 15}
           className="text-foreground"
         >
           😴
@@ -63,8 +57,8 @@ const SemicircleProgressBar: React.FC<SemicircleProgressBarProps> = ({
       ) : (
         <Dumbbell
           // https://stackoverflow.com/a/46828111
-          x={110 / 2 - 22 / 2}
-          y={100 / 2 - 22 / 2 + 5}
+          x={11 + 88 / 2 - 22 / 2}
+          y={15 + 88 / 2 - 22 / 2}
           strokeWidth={2.7}
           size={22}
           // TODO: Rotate not working
@@ -73,8 +67,8 @@ const SemicircleProgressBar: React.FC<SemicircleProgressBarProps> = ({
       )}
 
       <text
-        x="50%"
-        y="90%"
+        x="62%"
+        y="110%"
         dominantBaseline="middle"
         textAnchor="middle"
         className="text-foreground"
@@ -151,9 +145,9 @@ export default function Workout({ params }: { params: { id: string } }) {
     <div className="flex h-full w-full flex-col gap-2 animate-in fade-in lg:max-w-6xl lg:flex-row">
       <title>{`${workout?.title} - ${exercise.name}`}</title>
       <section className="relative flex h-full flex-1 flex-col items-center overflow-hidden rounded-lg border p-4">
-        <section className="flex h-max w-full justify-between">
+        <div className="flex h-max w-full justify-between">
           <Button
-            className="flex gap-2 text-lg"
+            className="flex gap-2 md:text-lg"
             variant={"ghost"}
             disabled={isActive}
             onClick={() => router.replace("/")}
@@ -162,16 +156,16 @@ export default function Workout({ params }: { params: { id: string } }) {
           </Button>
 
           <Button
-            className="flex gap-2 text-lg"
+            className="flex gap-2 md:text-lg"
             variant={"ghost"}
             disabled={exerciseIndex === 0}
             onClick={() => resetAll()}
           >
             <ListRestart /> Reset
           </Button>
-        </section>
+        </div>
 
-        <h1 className="mt-6 text-center text-4xl font-black opacity-20 lg:text-6xl">
+        <h1 className="mt-3 text-center text-xl font-black opacity-20 lg:text-6xl">
           {workout?.title}
         </h1>
 
@@ -179,7 +173,7 @@ export default function Workout({ params }: { params: { id: string } }) {
           {exercise.duration > 0 ? (
             <>
               <motion.div
-                className="h-56 lg:mt-10 lg:h-80"
+                className="mt-2 h-max w-56 lg:w-80"
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
                 exit={{ opacity: 0 }}
@@ -213,7 +207,7 @@ export default function Workout({ params }: { params: { id: string } }) {
       </section>
 
       <section className="relative flex h-full flex-1 flex-col gap-2 overflow-hidden">
-        <section className="flex h-max gap-2">
+        <div className="flex h-max gap-2">
           <Button
             className="flex h-[78px] w-full gap-2 px-0 py-8 text-lg"
             {...(!isActive && progress === exercise.duration
@@ -262,7 +256,7 @@ export default function Workout({ params }: { params: { id: string } }) {
               Next <StepForward className="fill-background" />
             </Button>
           )}
-        </section>
+        </div>
 
         <div className="relative flex h-full w-full flex-col place-content-start gap-2 overflow-y-auto overflow-x-hidden">
           {exercises.map((ex, i) => (
@@ -287,6 +281,7 @@ export default function Workout({ params }: { params: { id: string } }) {
                   className="h-14 w-full"
                   variant={"outline"}
                   onClick={() => {
+                    resetTimer()
                     setExerciseIndex(i)
                     setExercise(ex)
                     setTime(ex.duration)

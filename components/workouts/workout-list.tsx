@@ -1,41 +1,8 @@
 "use client"
 
 import Link from "next/link"
-import { ArrayToUnion } from "@/utils/types"
 import { AnimatePresence, motion } from "framer-motion"
-
-export const WORKOUT_TARGET = [
-  "Full Body",
-  "Chest",
-  "Legs",
-  "Triceps",
-  "Biceps",
-  "Arms",
-  "Upper Body",
-  "Abs",
-] as const
-
-export type Exercise = {
-  id: string
-  position: number
-  name: string
-  type: "work" | "rest"
-  duration: number
-  repetitions: number
-  sets: number
-}
-
-export type Workout = {
-  id?: string
-  creator: string
-  position: number
-  type: "list" | "timer"
-  title: string
-  description: string
-  target: ArrayToUnion<typeof WORKOUT_TARGET>
-  items: Exercise[]
-  dateCreated: string
-}
+import { Workout } from "@/schema/main"
 
 export const initialData: Workout[] = [
   {

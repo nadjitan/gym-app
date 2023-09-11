@@ -1,5 +1,7 @@
 "use client"
 
+import { useTheme } from "next-themes"
+import { useRouter } from "next/navigation"
 import { Moon, Sun, Menu, PlusCircle } from "lucide-react"
 
 import { Button } from "@/components/ui/button"
@@ -18,10 +20,10 @@ import {
   AccordionItem,
   AccordionTrigger,
 } from "@/components/ui/accordion"
-import { useTheme } from "next-themes"
 
 export function AccordionTheme() {
-  const { setTheme } = useTheme()
+  const { setTheme, theme } = useTheme()
+
   return (
     <Accordion type="single" collapsible className="w-full">
       <AccordionItem value="item-1" className="border-b-0">
@@ -34,7 +36,9 @@ export function AccordionTheme() {
         </AccordionTrigger>
         <AccordionContent className="m-0">
           <Button
-            className="ml-4 w-full rounded-l-none border-l font-normal"
+            className={`ml-4 w-full rounded-l-none border-l font-normal ${
+              theme === "light" ? "bg-accent" : ""
+            }`}
             contentCenter={false}
             variant={"ghost"}
             onClick={() => setTheme("light")}
@@ -42,7 +46,9 @@ export function AccordionTheme() {
             Light
           </Button>
           <Button
-            className="ml-4 w-full rounded-l-none border-l font-normal"
+            className={`ml-4 w-full rounded-l-none border-l font-normal ${
+              theme === "dark" ? "bg-accent" : ""
+            }`}
             contentCenter={false}
             variant={"ghost"}
             onClick={() => setTheme("dark")}
@@ -50,7 +56,9 @@ export function AccordionTheme() {
             Dark
           </Button>
           <Button
-            className="ml-4 w-full rounded-l-none border-l font-normal"
+            className={`ml-4 w-full rounded-l-none border-l font-normal ${
+              theme === "system" ? "bg-accent" : ""
+            }`}
             contentCenter={false}
             variant={"ghost"}
             onClick={() => setTheme("system")}
@@ -64,6 +72,8 @@ export function AccordionTheme() {
 }
 
 export function NavMenu() {
+  const router = useRouter()
+
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
@@ -75,7 +85,10 @@ export function NavMenu() {
         <DropdownMenuLabel>Menu</DropdownMenuLabel>
         <DropdownMenuGroup>
           <AccordionTheme />
-          <DropdownMenuItem className="cursor-pointer py-2">
+          <DropdownMenuItem
+            className="cursor-pointer py-2"
+            onClick={() => router.push("/create-workout")}
+          >
             <PlusCircle className="mr-2 h-4 w-4" />
             <span>Create Workout</span>
           </DropdownMenuItem>
@@ -95,7 +108,7 @@ export function NavMenu() {
           </DropdownMenuSub> */}
 
           <DropdownMenuSeparator />
-          <DropdownMenuLabel className="select-none text-center font-normal opacity-50">
+          <DropdownMenuLabel className="select-none text-center text-xs font-normal opacity-50">
             app v 1.0
           </DropdownMenuLabel>
         </DropdownMenuGroup>
