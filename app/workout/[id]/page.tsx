@@ -173,7 +173,7 @@ export default function Workout({ params }: { params: { id: string } }) {
           {exercise.duration > 0 ? (
             <>
               <motion.div
-                className="mt-2 h-max w-56 lg:w-80"
+                className="mt-2 h-max w-36 md:w-56 lg:w-80"
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
                 exit={{ opacity: 0 }}

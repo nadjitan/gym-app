@@ -6,6 +6,8 @@ import { ThemeProvider } from "@/components/theme-provider"
 const spaceGrotesk = Space_Grotesk({
   subsets: ["latin"],
   weight: ["300", "400", "500", "600", "700"],
+  preload: false,
+  display: "swap",
 })
 
 export const metadata: Metadata = {
