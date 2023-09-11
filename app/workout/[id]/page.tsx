@@ -1,14 +1,33 @@
 "use client"
 
 import { useRouter } from "next/navigation"
+import type { Metadata } from "next"
 import { Button } from "@/components/ui/button"
 import { initialData } from "@/components/workouts/workout-list"
 import { Play, Square, Pause, ListRestart, StepForward } from "lucide-react"
 import { useEffect, useRef, useState } from "react"
 import { Dumbbell, MoveLeft, ArrowRight } from "lucide-react"
-import { animate, stagger, motion, Reorder } from "framer-motion"
+import {
+  animate,
+  stagger,
+  motion,
+  Transition,
+  AnimatePresence,
+} from "framer-motion"
 import useTimer from "@/hooks/useTimer"
 import { ListButton } from "@/components/ui/list-button"
+
+type Props = {
+  params: { id: string }
+  searchParams: { [key: string]: string | string[] | undefined }
+}
+
+export async function generateMetadata({ params }: Props): Promise<Metadata> {
+  const workout = initialData.find((item) => item.id === params.id)!
+  return {
+    title: workout.title,
+  }
+}
 
 interface SemicircleProgressBarProps {
   duration: number
@@ -80,6 +99,11 @@ const SemicircleProgressBar: React.FC<SemicircleProgressBarProps> = ({
 }
 
 const staggerMenuItems = stagger(0.1, { startDelay: 0.15 })
+const springTransition: Transition = {
+  type: "spring",
+  stiffness: 700,
+  damping: 30,
+}
 
 export default function Workout({ params }: { params: { id: string } }) {
   const router = useRouter()
@@ -138,7 +162,7 @@ export default function Workout({ params }: { params: { id: string } }) {
 
   return (
     <div className="flex h-full w-full flex-col gap-2 animate-in fade-in lg:max-w-6xl lg:flex-row">
-      <section className="flex h-full flex-1 flex-col items-center rounded-lg border p-4">
+      <section className="relative flex h-full flex-1 flex-col items-center overflow-hidden rounded-lg border p-4">
         <section className="flex h-max w-full justify-between">
           <Button
             className="flex gap-2 text-lg"
@@ -152,33 +176,52 @@ export default function Workout({ params }: { params: { id: string } }) {
           <Button
             className="flex gap-2 text-lg"
             variant={"ghost"}
+            disabled={exerciseIndex === 0}
             onClick={() => resetAll()}
           >
             <ListRestart /> Reset
           </Button>
         </section>
 
-        <h1 className="mt-12 text-4xl font-black underline lg:text-7xl">
+        <h1 className="mt-6 text-center text-4xl font-black opacity-20 lg:text-6xl">
           {workout?.title}
         </h1>
 
-        {exercise.duration > 0 && (
-          <div className="mt-2 h-56 lg:mt-10 lg:h-80">
-            <SemicircleProgressBar
-              duration={exercise.duration}
-              isRest={exercise.type === "rest"}
-              progress={progress}
-            />
-          </div>
-        )}
-
-        {exercise.duration === 0 && (
-          <h2 className="mt-16 text-xl font-semibold">
-            {exercise.sets}x{exercise.repetitions}
-          </h2>
-        )}
-
-        <h1 className="text-3xl font-semibold">{exercise.name}</h1>
+        <AnimatePresence>
+          {exercise.duration > 0 ? (
+            <>
+              <motion.div
+                className="h-56 lg:mt-10 lg:h-80"
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+              >
+                <SemicircleProgressBar
+                  duration={exercise.duration}
+                  isRest={exercise.type === "rest"}
+                  progress={progress}
+                />
+              </motion.div>
+              <motion.h1 className="line-clamp-2 text-3xl font-semibold">
+                {exercise.name}
+              </motion.h1>
+            </>
+          ) : (
+            <>
+              <motion.h2
+                className="mt-14 text-2xl font-semibold"
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+              >
+                {exercise.sets}x{exercise.repetitions}
+              </motion.h2>
+              <motion.h1 className="line-clamp-2 text-3xl font-semibold">
+                {exercise.name}
+              </motion.h1>
+            </>
+          )}
+        </AnimatePresence>
       </section>
 
       <section className="relative flex h-full flex-1 flex-col gap-2 overflow-hidden">
@@ -234,41 +277,49 @@ export default function Workout({ params }: { params: { id: string } }) {
         </section>
 
         <div className="relative flex h-full w-full flex-col place-content-start gap-2 overflow-y-auto overflow-x-hidden">
-          {exercises.map((ex, i) => {
-            return (
-              <div
-                ref={(el) => {
-                  itemElsRef.current.push(el!)
-                }}
-                className={`exercise-item flex items-center gap-2`}
-                key={`exercise-${ex.id}`}
-              >
-                {exercise.id === ex.id && (
-                  <motion.div layoutId="active-exercise" className="z-20">
-                    <ArrowRight strokeWidth={2.5} />
-                  </motion.div>
-                )}
-                <motion.div layout className="z-10 w-full">
-                  <ListButton
-                    className="h-14 w-full"
-                    variant={"outline"}
-                    onClick={() => {
-                      setExerciseIndex(i)
-                      setExercise(ex)
-                      setTime(ex.duration)
-                    }}
-                  >
-                    <p className="mr-2 w-10 text-end text-sm font-bold transition-all">
-                      {ex.duration === 0
-                        ? `${ex.sets}x${ex.repetitions}`
-                        : `${ex.duration.toString()}s`}
-                    </p>
-                    <h4 className="text-lg">{ex.name}</h4>
-                  </ListButton>
+          {exercises.map((ex, i) => (
+            <div
+              key={`exercise-${ex.id}`}
+              ref={(el) => {
+                itemElsRef.current.push(el!)
+              }}
+              className={`exercise-item flex items-center gap-2`}
+            >
+              {exercise.id === ex.id && (
+                <motion.div
+                  className="z-20"
+                  layoutId="active-exercise"
+                  transition={springTransition}
+                >
+                  <ArrowRight strokeWidth={2.5} />
                 </motion.div>
-              </div>
-            )
-          })}
+              )}
+              <motion.div className="z-10 w-full" layout>
+                <ListButton
+                  className="h-14 w-full"
+                  variant={"outline"}
+                  onClick={() => {
+                    setExerciseIndex(i)
+                    setExercise(ex)
+                    setTime(ex.duration)
+                  }}
+                >
+                  {/* Children also needs `motion` to scale correctly during parent `layout` animations  */}
+                  <motion.p
+                    layout
+                    className="mr-2 w-10 text-end text-sm font-light"
+                  >
+                    {ex.duration === 0
+                      ? `${ex.sets}x${ex.repetitions}`
+                      : `${ex.duration.toString()}s`}
+                  </motion.p>
+                  <motion.h4 layout className="line-clamp-1 text-lg">
+                    {ex.name}
+                  </motion.h4>
+                </ListButton>
+              </motion.div>
+            </div>
+          ))}
         </div>
       </section>
     </div>

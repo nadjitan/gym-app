@@ -1,5 +1,8 @@
+"use client"
+
 import Link from "next/link"
 import { ArrayToUnion } from "@/utils/types"
+import { AnimatePresence, motion } from "framer-motion"
 
 export const WORKOUT_TARGET = [
   "Full Body",
@@ -14,6 +17,7 @@ export const WORKOUT_TARGET = [
 
 export type Exercise = {
   id: string
+  position: number
   name: string
   type: "work" | "rest"
   duration: number
@@ -46,6 +50,7 @@ export const initialData: Workout[] = [
     items: [
       {
         id: "0",
+        position: 0,
         name: "Squats",
         type: "work",
         duration: 2,
@@ -54,6 +59,7 @@ export const initialData: Workout[] = [
       },
       {
         id: "1",
+        position: 1,
         name: "Rest",
         type: "rest",
         duration: 2,
@@ -61,71 +67,8 @@ export const initialData: Workout[] = [
         repetitions: 0,
       },
       {
-        id: "3",
-        name: "Barbell Squat",
-        type: "work",
-        duration: 2,
-        sets: 0,
-        repetitions: 0,
-      },
-      {
-        id: "4",
-        name: "Barbell Squat",
-        type: "work",
-        duration: 2,
-        sets: 0,
-        repetitions: 0,
-      },
-      {
-        id: "5",
-        name: "Barbell Squat",
-        type: "work",
-        duration: 2,
-        sets: 0,
-        repetitions: 0,
-      },
-      {
-        id: "6",
-        name: "Barbell Squat",
-        type: "work",
-        duration: 2,
-        sets: 0,
-        repetitions: 0,
-      },
-      {
-        id: "7",
-        name: "Barbell Squat",
-        type: "work",
-        duration: 2,
-        sets: 0,
-        repetitions: 0,
-      },
-      {
-        id: "8",
-        name: "Barbell Squat",
-        type: "work",
-        duration: 2,
-        sets: 0,
-        repetitions: 0,
-      },
-      {
-        id: "9",
-        name: "Barbell Squat",
-        type: "work",
-        duration: 2,
-        sets: 0,
-        repetitions: 0,
-      },
-      {
-        id: "10",
-        name: "Barbell Squat",
-        type: "work",
-        duration: 2,
-        sets: 0,
-        repetitions: 0,
-      },
-      {
-        id: "11",
+        id: "2",
+        position: 2,
         name: "Barbell Squat",
         type: "work",
         duration: 2,
@@ -147,6 +90,7 @@ export const initialData: Workout[] = [
     items: [
       {
         id: "0",
+        position: 0,
         name: "Dumbell curls",
         type: "work",
         duration: 0,
@@ -155,6 +99,7 @@ export const initialData: Workout[] = [
       },
       {
         id: "1",
+        position: 1,
         name: "Rest",
         type: "rest",
         duration: 3,
@@ -163,6 +108,7 @@ export const initialData: Workout[] = [
       },
       {
         id: "2",
+        position: 2,
         name: "Rope Pulldowns",
         type: "work",
         duration: 0,
@@ -174,46 +120,48 @@ export const initialData: Workout[] = [
   },
 ]
 
-const WorkoutItem: React.FC<{ workout: Workout }> = ({ workout }) => {
-  return (
-    <Link
-      href={`/workout/${workout.id}`}
-      className="group grid h-44 w-52 place-content-start gap-2 rounded-lg border border-transparent px-5 py-4 transition-colors hover:border-gray-300 hover:bg-gray-100 hover:dark:border-neutral-700 hover:dark:bg-neutral-800/30"
-    >
-      <h2 className={`text-xl font-semibold`}>
-        {workout.title}
-        {/* <span className="inline-block transition-transform group-hover:translate-x-1 motion-reduce:transform-none">
-          -&gt;
-        </span> */}
-      </h2>
-      <p className={`line-clamp-2 text-sm font-extralight opacity-50`}>
-        {workout.description}
-      </p>
-
-      <ul className="line-clamp-3 h-full overflow-hidden">
-        {workout.items.map((ex) => (
-          <>
-            <li className={`text-sm opacity-50`}>
-              - {ex.name}{" "}
-              <span className="text-xs">
-                {ex.duration === 0
-                  ? `${ex.sets}x${ex.repetitions}`
-                  : `${ex.duration.toString()}s`}
-              </span>
-            </li>
-          </>
-        ))}
-      </ul>
-    </Link>
-  )
-}
-
 export default function WorkoutList() {
   return (
-    <>
+    <AnimatePresence>
       {initialData.map((item) => (
-        <WorkoutItem key={`workout-${item.id}`} workout={item} />
+        <motion.div
+          key={`workout-${item.id}`}
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          exit={{ opacity: 0 }}
+        >
+          <Link
+            href={`/workout/${item.id}`}
+            className="group grid h-44 w-52 place-content-start gap-2 rounded-lg border border-transparent px-5 py-4 transition-colors hover:border-gray-300 hover:bg-gray-100 hover:dark:border-neutral-700 hover:dark:bg-neutral-800/30"
+          >
+            <h2 className={`text-xl font-semibold`}>
+              {item.title}
+              {/* <span className="inline-block transition-transform group-hover:translate-x-1 motion-reduce:transform-none">
+          -&gt;
+        </span> */}
+            </h2>
+            <p className={`line-clamp-2 text-sm font-extralight opacity-50`}>
+              {item.description}
+            </p>
+
+            <ul className="line-clamp-3 h-full overflow-hidden">
+              {item.items.map((ex) => (
+                <li
+                  className={`text-sm opacity-50`}
+                  key={`${item.id}-exercise-${ex.id}`}
+                >
+                  - {ex.name}{" "}
+                  <span className="text-xs">
+                    {ex.duration === 0
+                      ? `${ex.sets}x${ex.repetitions}`
+                      : `${ex.duration.toString()}s`}
+                  </span>
+                </li>
+              ))}
+            </ul>
+          </Link>
+        </motion.div>
       ))}
-    </>
+    </AnimatePresence>
   )
 }

@@ -1,7 +1,7 @@
 export default function FullScreenLoading() {
   return (
-    <div className="flex h-full w-full max-w-6xl flex-col items-end gap-2 animate-in fade-in">
-      <h1 className="mt-auto flex gap-2 text-3xl font-extralight">
+    <div className="flex h-full w-full flex-col items-end gap-2 animate-in fade-in lg:max-w-6xl">
+      <h1 className="mr-2 mt-auto flex gap-2 text-3xl font-extralight lg:mr-0">
         <svg
           xmlns="http://www.w3.org/2000/svg"
           width="1em"

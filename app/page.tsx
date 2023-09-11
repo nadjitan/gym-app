@@ -1,3 +1,4 @@
+import { NavMenu } from "@/components/nav-menu"
 import { ThemeToggle } from "@/components/theme-toggle"
 import WorkoutList from "@/components/workouts/workout-list"
 import { Dumbbell } from "lucide-react"
@@ -16,7 +17,7 @@ export default function Home() {
           <Dumbbell strokeWidth={2.7} size={32} />
           <h1 className="text-3xl font-black tracking-widest">FITNESS</h1>
         </div>
-        <ThemeToggle />
+        <NavMenu />
         {/* <TooltipProvider>
      <Tooltip>
        <TooltipTrigger asChild>
