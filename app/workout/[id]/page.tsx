@@ -1,7 +1,6 @@
 "use client"
 
 import { useRouter } from "next/navigation"
-import type { Metadata } from "next"
 import { Button } from "@/components/ui/button"
 import { initialData } from "@/components/workouts/workout-list"
 import { Play, Square, Pause, ListRestart, StepForward } from "lucide-react"
@@ -16,18 +15,6 @@ import {
 } from "framer-motion"
 import useTimer from "@/hooks/useTimer"
 import { ListButton } from "@/components/ui/list-button"
-
-type Props = {
-  params: { id: string }
-  searchParams: { [key: string]: string | string[] | undefined }
-}
-
-export async function generateMetadata({ params }: Props): Promise<Metadata> {
-  const workout = initialData.find((item) => item.id === params.id)!
-  return {
-    title: workout.title,
-  }
-}
 
 interface SemicircleProgressBarProps {
   duration: number
@@ -162,6 +149,7 @@ export default function Workout({ params }: { params: { id: string } }) {
 
   return (
     <div className="flex h-full w-full flex-col gap-2 animate-in fade-in lg:max-w-6xl lg:flex-row">
+      <title>{`${workout?.title} - ${exercise.name}`}</title>
       <section className="relative flex h-full flex-1 flex-col items-center overflow-hidden rounded-lg border p-4">
         <section className="flex h-max w-full justify-between">
           <Button
