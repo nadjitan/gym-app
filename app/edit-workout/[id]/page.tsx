@@ -86,20 +86,14 @@ const ExerciseItem: React.FC<{
   )
 }
 
-export default function CreateWorkout() {
+export default function EditWorkout({ params }: { params: { id: string } }) {
   const [workouts, setWorkouts] = useAtom(workoutsAtom)
+  const workout = workouts.find((item) => item.id === params.id)
   const router = useRouter()
 
   const workoutForm = useForm<Workout>({
     resolver: zodResolver(workoutSchema),
-    defaultValues: {
-      creator: "User1",
-      dateCreated: getLocalISODatetime(),
-      description: "",
-      exercises: [],
-      target: "Abs",
-      title: "",
-    },
+    defaultValues: workout,
   })
   const workoutExerciseField = useFieldArray({
     control: workoutForm.control,
@@ -119,10 +113,13 @@ export default function CreateWorkout() {
   })
 
   function onSubmit(values: Workout) {
-    const prevId = parseInt(workouts.at(-1)?.id!) + 1
-    values.id = prevId.toString()
-    setWorkouts([...workouts, values])
-    router.replace("/")
+    setWorkouts(
+      workouts.map((w) => {
+        if (w.id === values.id) return values
+        return w
+      }),
+    )
+    router.push(`/workout/${values.id}`)
   }
 
   return (
@@ -186,7 +183,7 @@ export default function CreateWorkout() {
               />
 
               <Button type="submit" className="ml-auto mt-6 w-max">
-                Submit
+                Save
               </Button>
 
               <FormField

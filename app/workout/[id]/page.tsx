@@ -2,8 +2,15 @@
 
 import { useRouter } from "next/navigation"
 import { Button } from "@/components/ui/button"
-import { initialData } from "@/components/workouts/workout-list"
-import { Play, Square, Pause, ListRestart, StepForward } from "lucide-react"
+import { workoutsAtom } from "@/store/workouts"
+import {
+  Play,
+  Square,
+  Pause,
+  ListRestart,
+  StepForward,
+  FileEdit,
+} from "lucide-react"
 import { useEffect, useRef, useState } from "react"
 import { Dumbbell, MoveLeft, ArrowRight } from "lucide-react"
 import {
@@ -15,6 +22,7 @@ import {
 } from "framer-motion"
 import useTimer from "@/hooks/useTimer"
 import { ListButton } from "@/components/ui/list-button"
+import { useAtom } from "jotai"
 
 interface SemicircleProgressBarProps {
   duration: number
@@ -88,9 +96,9 @@ const springTransition: Transition = {
 
 export default function Workout({ params }: { params: { id: string } }) {
   const router = useRouter()
-
-  const workout = initialData.find((item) => item.id === params.id)
-  const [exercises] = useState(workout?.items!)
+  const [workouts] = useAtom(workoutsAtom)
+  const workout = workouts.find((item) => item.id === params.id)
+  const [exercises] = useState(workout?.exercises!)
   const [exerciseIndex, setExerciseIndex] = useState(0)
   const [exercise, setExercise] = useState(exercises[exerciseIndex])
 
@@ -103,6 +111,7 @@ export default function Workout({ params }: { params: { id: string } }) {
     resetTimer()
     setExerciseIndex(0)
     setExercise(exercises[0]!)
+    setTime(exercises[0].duration)
     itemElsRef.current![0].scrollIntoView({
       behavior: "smooth",
     })
@@ -144,7 +153,7 @@ export default function Workout({ params }: { params: { id: string } }) {
   return (
     <div className="flex h-full w-full flex-col gap-2 animate-in fade-in lg:max-w-6xl lg:flex-row">
       <title>{`${workout?.title} - ${exercise.name}`}</title>
-      <section className="relative flex h-full flex-1 flex-col items-center overflow-hidden rounded-lg border p-4">
+      <section className="relative flex h-full flex-1 flex-col items-center gap-4 overflow-hidden rounded-lg border p-4">
         <div className="flex h-max w-full justify-between">
           <Button
             className="flex gap-2 md:text-lg"
@@ -165,7 +174,7 @@ export default function Workout({ params }: { params: { id: string } }) {
           </Button>
         </div>
 
-        <h1 className="mt-3 text-center text-xl font-black opacity-20 lg:text-6xl">
+        <h1 className="text-center text-xl font-black opacity-20 lg:text-6xl">
           {workout?.title}
         </h1>
 
@@ -173,7 +182,7 @@ export default function Workout({ params }: { params: { id: string } }) {
           {exercise.duration > 0 ? (
             <>
               <motion.div
-                className="mt-2 h-max w-36 md:w-56 lg:w-80"
+                className="h-max w-36 md:w-56 lg:w-80"
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
                 exit={{ opacity: 0 }}
@@ -191,7 +200,7 @@ export default function Workout({ params }: { params: { id: string } }) {
           ) : (
             <>
               <motion.h2
-                className="mt-14 text-2xl font-semibold"
+                className="pt-14 text-2xl font-semibold"
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
                 exit={{ opacity: 0 }}
@@ -204,6 +213,16 @@ export default function Workout({ params }: { params: { id: string } }) {
             </>
           )}
         </AnimatePresence>
+
+        <Button
+          variant="ghost"
+          className="absolute bottom-4 left-4 flex gap-2 md:text-lg"
+          onClick={() => {
+            router.push(`/edit-workout/${workout!.id}`)
+          }}
+        >
+          <FileEdit /> Edit
+        </Button>
       </section>
 
       <section className="relative flex h-full flex-1 flex-col gap-2 overflow-hidden">

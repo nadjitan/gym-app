@@ -2,95 +2,15 @@
 
 import Link from "next/link"
 import { AnimatePresence, motion } from "framer-motion"
-import { Workout } from "@/schema/main"
-
-export const initialData: Workout[] = [
-  {
-    id: "0",
-    creator: "Nadji Tan",
-    position: 0,
-    type: "timer",
-    title: "Legs Workout",
-    description:
-      "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.",
-    target: "Legs",
-    items: [
-      {
-        id: "0",
-        position: 0,
-        name: "Squats",
-        type: "work",
-        duration: 2,
-        sets: 0,
-        repetitions: 0,
-      },
-      {
-        id: "1",
-        position: 1,
-        name: "Rest",
-        type: "rest",
-        duration: 2,
-        sets: 0,
-        repetitions: 0,
-      },
-      {
-        id: "2",
-        position: 2,
-        name: "Barbell Squat",
-        type: "work",
-        duration: 2,
-        sets: 0,
-        repetitions: 0,
-      },
-    ],
-    dateCreated: "2023-09-09T03:35:59.456Z",
-  },
-  {
-    id: "1",
-    creator: "Nadji Tan",
-    position: 1,
-    type: "list",
-    title: "Arms Workout",
-    description:
-      "Felis imperdiet proin fermentum leo. Ante metus dictum at tempor commodo.",
-    target: "Arms",
-    items: [
-      {
-        id: "0",
-        position: 0,
-        name: "Dumbell curls",
-        type: "work",
-        duration: 0,
-        sets: 3,
-        repetitions: 12,
-      },
-      {
-        id: "1",
-        position: 1,
-        name: "Rest",
-        type: "rest",
-        duration: 3,
-        sets: 0,
-        repetitions: 0,
-      },
-      {
-        id: "2",
-        position: 2,
-        name: "Rope Pulldowns",
-        type: "work",
-        duration: 0,
-        sets: 3,
-        repetitions: 12,
-      },
-    ],
-    dateCreated: "2023-09-09T03:35:59.456Z",
-  },
-]
+import { useAtom } from "jotai"
+import { workoutsAtom } from "@/store/workouts"
 
 export default function WorkoutList() {
+  const [workouts] = useAtom(workoutsAtom)
+
   return (
     <AnimatePresence>
-      {initialData.map((item) => (
+      {workouts.map((item) => (
         <motion.div
           key={`workout-${item.id}`}
           initial={{ opacity: 0 }}
@@ -112,7 +32,7 @@ export default function WorkoutList() {
             </p>
 
             <ul className="line-clamp-3 h-full overflow-hidden">
-              {item.items.map((ex) => (
+              {item.exercises.map((ex) => (
                 <li
                   className={`text-sm opacity-50`}
                   key={`${item.id}-exercise-${ex.id}`}

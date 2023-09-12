@@ -1,5 +1,4 @@
 import { NavMenu } from "@/components/nav-menu"
-import { ThemeToggle } from "@/components/theme-toggle"
 import WorkoutList from "@/components/workouts/workout-list"
 import { Dumbbell } from "lucide-react"
 // import {
