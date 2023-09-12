@@ -39,6 +39,7 @@ const ExerciseItem: React.FC<{
   exercise: Exercise
   workoutForm: UseFormReturn<Workout>
 }> = ({ exercise, workoutForm }) => {
+  // TODO: Reorder grip not working in mobile
   const controls = useDragControls()
 
   return (

@@ -129,9 +129,9 @@ export default function EditWorkout({ params }: { params: { id: string } }) {
           <Button
             className="flex gap-2 md:text-lg"
             variant={"ghost"}
-            onClick={() => router.replace("/")}
+            onClick={() => router.back()}
           >
-            <MoveLeft /> Exit
+            <MoveLeft /> Back
           </Button>
 
           <Button
