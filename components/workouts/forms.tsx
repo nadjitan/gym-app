@@ -1,5 +1,6 @@
 "use client"
 
+import { v4 as uuidv4 } from "uuid"
 import { useRouter } from "next/navigation"
 import { Grip, ListRestart, PlusCircle, MoveLeft, Trash } from "lucide-react"
 import { useAtom } from "jotai"
@@ -93,6 +94,7 @@ export const CreateWorkoutForm: React.FC = () => {
   const workoutForm = useForm<Workout>({
     resolver: zodResolver(workoutSchema),
     defaultValues: {
+      id: uuidv4(),
       creator: "User1",
       dateCreated: getLocalISODatetime(),
       description: "",
@@ -109,7 +111,7 @@ export const CreateWorkoutForm: React.FC = () => {
   const exerciseForm = useForm<Exercise>({
     resolver: zodResolver(exerciseSchema),
     defaultValues: {
-      id: 0,
+      id: uuidv4(),
       duration: 5,
       name: "",
       repetitions: 1,
@@ -119,8 +121,6 @@ export const CreateWorkoutForm: React.FC = () => {
   })
 
   function onSubmit(values: Workout) {
-    const prevId = parseInt(workouts.at(-1)?.id!) + 1
-    values.id = prevId.toString()
     setWorkouts([...workouts, values])
     router.replace("/")
   }
@@ -363,7 +363,7 @@ export const CreateWorkoutForm: React.FC = () => {
             <ExerciseItem
               exercise={ex}
               workoutForm={workoutForm}
-              key={`exercise-${ex.id}`}
+              key={ex.id}
             />
           ))}
         </Reorder.Group>
@@ -391,7 +391,7 @@ export const EditWorkoutForm: React.FC<{ workoutId: string }> = ({
   const exerciseForm = useForm<Exercise>({
     resolver: zodResolver(exerciseSchema),
     defaultValues: {
-      id: 0,
+      id: uuidv4(),
       duration: 5,
       name: "",
       repetitions: 1,
@@ -659,7 +659,7 @@ export const EditWorkoutForm: React.FC<{ workoutId: string }> = ({
             <ExerciseItem
               exercise={ex}
               workoutForm={workoutForm}
-              key={`exercise-${ex.id}`}
+              key={ex.id}
             />
           ))}
         </Reorder.Group>

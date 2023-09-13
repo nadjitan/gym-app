@@ -28,7 +28,7 @@ export default function WorkoutList() {
           {item.exercises.map((ex) => (
             <li
               className={`text-sm opacity-50`}
-              key={`${item.id}-exercise-${ex.id}`}
+              key={ex.id}
             >
               - {ex.name}{" "}
               <span className="text-xs">

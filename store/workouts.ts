@@ -1,4 +1,5 @@
 import { createJSONStorage, atomWithStorage } from "jotai/utils"
+import { v4 as uuidv4 } from "uuid"
 
 import * as z from "zod"
 
@@ -18,7 +19,7 @@ export const WORKOUT_TARGET = [
 ] as const
 
 export const exerciseSchema = z.object({
-  id: z.number(),
+  id: z.string(),
   name: z.string().min(1, {
     message: "Name must be at least 1 character.",
   }),
@@ -45,7 +46,7 @@ export const workoutSchema = z.object({
 
 export const initialData: Workout[] = [
   {
-    id: "0",
+    id: uuidv4(),
     creator: "Nadji Tan",
     title: "Legs Workout",
     description:
@@ -53,7 +54,7 @@ export const initialData: Workout[] = [
     target: "Legs",
     exercises: [
       {
-        id: 0,
+        id: uuidv4(),
         name: "Squats",
         type: "work",
         duration: 2,
@@ -61,7 +62,7 @@ export const initialData: Workout[] = [
         repetitions: 0,
       },
       {
-        id: 1,
+        id: uuidv4(),
         name: "Rest",
         type: "rest",
         duration: 2,
@@ -69,7 +70,7 @@ export const initialData: Workout[] = [
         repetitions: 0,
       },
       {
-        id: 2,
+        id: uuidv4(),
         name: "Barbell Squat",
         type: "work",
         duration: 2,
@@ -80,7 +81,7 @@ export const initialData: Workout[] = [
     dateCreated: "2023-09-09T03:35:59.456Z",
   },
   {
-    id: "1",
+    id: uuidv4(),
     creator: "Nadji Tan",
     title: "Arms Workout",
     description:
@@ -88,7 +89,7 @@ export const initialData: Workout[] = [
     target: "Arms",
     exercises: [
       {
-        id: 0,
+        id: uuidv4(),
         name: "Dumbell curls",
         type: "work",
         duration: 0,
@@ -96,7 +97,7 @@ export const initialData: Workout[] = [
         repetitions: 12,
       },
       {
-        id: 1,
+        id: uuidv4(),
         name: "Rest",
         type: "rest",
         duration: 3,
@@ -104,7 +105,7 @@ export const initialData: Workout[] = [
         repetitions: 0,
       },
       {
-        id: 2,
+        id: uuidv4(),
         name: "Rope Pulldowns",
         type: "work",
         duration: 0,

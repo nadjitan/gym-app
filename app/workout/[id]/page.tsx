@@ -280,7 +280,7 @@ export default function Workout({ params }: { params: { id: string } }) {
         <div className="relative flex h-full w-full flex-col place-content-start gap-2 overflow-y-auto overflow-x-hidden">
           {exercises.map((ex, i) => (
             <div
-              key={`exercise-${ex.id}`}
+              key={ex.id}
               ref={(el) => {
                 itemElsRef.current.push(el!)
               }}
