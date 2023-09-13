@@ -167,7 +167,7 @@ export const CreateWorkoutForm: React.FC = () => {
                     {/* <FormDescription>
                     This is your public display name.
                   </FormDescription> */}
-                    <FormMessage />
+                    <FormMessage className="dark:text-red-600" />
                   </FormItem>
                 )}
               />
@@ -180,7 +180,7 @@ export const CreateWorkoutForm: React.FC = () => {
                     <FormControl>
                       <Textarea {...field} />
                     </FormControl>
-                    <FormMessage />
+                    <FormMessage className="dark:text-red-600" />
                   </FormItem>
                 )}
               />
@@ -194,8 +194,10 @@ export const CreateWorkoutForm: React.FC = () => {
                 name="exercises"
                 render={({ field }) => (
                   <FormItem className="w-full text-center">
-                    <FormLabel className="capitalize">Exercise</FormLabel>
-                    <FormMessage />
+                    <FormLabel className="capitalize underline">
+                      Exercise
+                    </FormLabel>
+                    <FormMessage className="dark:text-red-600" />
                   </FormItem>
                 )}
               />
@@ -216,7 +218,7 @@ export const CreateWorkoutForm: React.FC = () => {
                     <FormControl>
                       <Input {...field} />
                     </FormControl>
-                    <FormMessage />
+                    <FormMessage className="dark:text-red-600" />
                   </FormItem>
                 )}
               />
@@ -230,7 +232,7 @@ export const CreateWorkoutForm: React.FC = () => {
                     <Select
                       onValueChange={field.onChange}
                       // @ts-ignore
-                      defaultValue={field.value}
+                      value={field.value}
                     >
                       <FormControl>
                         <SelectTrigger className="w-full">
@@ -245,14 +247,14 @@ export const CreateWorkoutForm: React.FC = () => {
                       </SelectContent>
                     </Select>
 
-                    <FormMessage />
+                    <FormMessage className="dark:text-red-600" />
                   </FormItem>
                 )}
               />
 
               <Tabs
                 defaultValue="timer"
-                className="w-full"
+                className="mt-2 w-full"
                 onValueChange={(e) => {
                   if (e === "timer") {
                     exerciseForm.setValue("duration", 5)
@@ -282,7 +284,7 @@ export const CreateWorkoutForm: React.FC = () => {
                         <FormControl>
                           <Input className="w-20" {...field} />
                         </FormControl>
-                        <FormMessage />
+                        <FormMessage className="dark:text-red-600" />
                       </FormItem>
                     )}
                   />
@@ -302,7 +304,7 @@ export const CreateWorkoutForm: React.FC = () => {
                         <FormControl>
                           <Input className="w-20" {...field} />
                         </FormControl>
-                        <FormMessage />
+                        <FormMessage className="dark:text-red-600" />
                       </FormItem>
                     )}
                   />
@@ -317,7 +319,7 @@ export const CreateWorkoutForm: React.FC = () => {
                         <FormControl>
                           <Input className="w-20" {...field} />
                         </FormControl>
-                        <FormMessage />
+                        <FormMessage className="dark:text-red-600" />
                       </FormItem>
                     )}
                   />
