@@ -2,6 +2,7 @@ import "./globals.css"
 import type { Metadata } from "next"
 import { Space_Grotesk } from "next/font/google"
 import { ThemeProvider } from "@/components/theme-provider"
+import JotaiProvider from "@/components/jotai-provider"
 
 const spaceGrotesk = Space_Grotesk({
   subsets: ["latin"],
@@ -24,11 +25,13 @@ export default function RootLayout({
     // https://stackoverflow.com/a/75339011
     <html lang="en" suppressHydrationWarning={true}>
       <body className={spaceGrotesk.className} suppressHydrationWarning={true}>
-        <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
-          <main className="flex h-screen flex-col items-center px-4 py-4 lg:py-14">
-            {children}
-          </main>
-        </ThemeProvider>
+        <JotaiProvider>
+          <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
+            <main className="flex h-screen flex-col items-center px-4 py-4 lg:py-14">
+              {children}
+            </main>
+          </ThemeProvider>
+        </JotaiProvider>
       </body>
     </html>
   )
