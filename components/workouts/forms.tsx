@@ -35,12 +35,35 @@ import {
 import { AnimatePresence, Reorder, useDragControls } from "framer-motion"
 import { Textarea } from "@/components/ui/textarea"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
+import { useEffect, useRef } from "react"
 
 const ExerciseItem: React.FC<{
   exercise: Exercise
   workoutForm: UseFormReturn<Workout>
 }> = ({ exercise, workoutForm }) => {
   const controls = useDragControls()
+
+  // Workaround for Framer's Reorder not working on mobile devices
+  // see https://github.com/framer/motion/issues/1597#issuecomment-1235026724
+  const iRef = useRef<HTMLButtonElement | null>(null)
+  useEffect(() => {
+    const touchHandler: React.TouchEventHandler<HTMLButtonElement> = (e) =>
+      e.preventDefault()
+
+    const iTag = iRef.current
+
+    if (iTag) {
+      //@ts-ignore
+      iTag.addEventListener("touchstart", touchHandler, { passive: false })
+
+      return () => {
+        //@ts-ignore
+        iTag.removeEventListener("touchstart", touchHandler, {
+          passive: false,
+        })
+      }
+    }
+  }, [iRef])
 
   return (
     <AnimatePresence>
@@ -75,6 +98,7 @@ const ExerciseItem: React.FC<{
           </Button>
 
           <Button
+            ref={iRef}
             variant="ghost"
             size="icon"
             onPointerDown={(e) => controls.start(e)}
@@ -360,11 +384,7 @@ export const CreateWorkoutForm: React.FC = () => {
           }}
         >
           {workoutForm.getValues("exercises").map((ex) => (
-            <ExerciseItem
-              exercise={ex}
-              workoutForm={workoutForm}
-              key={ex.id}
-            />
+            <ExerciseItem exercise={ex} workoutForm={workoutForm} key={ex.id} />
           ))}
         </Reorder.Group>
       </section>
@@ -656,11 +676,7 @@ export const EditWorkoutForm: React.FC<{ workoutId: string }> = ({
           }}
         >
           {workoutForm.getValues("exercises").map((ex) => (
-            <ExerciseItem
-              exercise={ex}
-              workoutForm={workoutForm}
-              key={ex.id}
-            />
+            <ExerciseItem exercise={ex} workoutForm={workoutForm} key={ex.id} />
           ))}
         </Reorder.Group>
       </section>
