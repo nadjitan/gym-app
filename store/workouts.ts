@@ -1,6 +1,5 @@
-import { createJSONStorage, atomWithStorage } from "jotai/utils"
+import { atomWithStorage, createJSONStorage } from "jotai/utils"
 import { v4 as uuidv4 } from "uuid"
-
 import * as z from "zod"
 
 export type Exercise = z.infer<typeof exerciseSchema>
@@ -15,33 +14,33 @@ export const WORKOUT_TARGET = [
   "Biceps",
   "Arms",
   "Upper Body",
-  "Abs",
+  "Abs"
 ] as const
 
 export const exerciseSchema = z.object({
   id: z.string(),
   name: z.string().min(1, {
-    message: "Name must be at least 1 character.",
+    message: "Name must be at least 1 character."
   }),
   type: z.union([z.literal("work"), z.literal("rest")]),
   duration: z.coerce.number(),
   repetitions: z.coerce.number(),
-  sets: z.coerce.number(),
+  sets: z.coerce.number()
 })
 export const exerciseListSchema = z.array(exerciseSchema).min(1, {
-  message: "Workout must have at least 1 exercise.",
+  message: "Workout must have at least 1 exercise."
 })
 
 export const workoutSchema = z.object({
   id: z.string().optional(),
   creator: z.string(),
   title: z.string().min(1, {
-    message: "Title must be at least 1 character.",
+    message: "Title must be at least 1 character."
   }),
   description: z.string(),
   target: z.enum(WORKOUT_TARGET),
   exercises: exerciseListSchema,
-  dateCreated: z.string(),
+  dateCreated: z.string()
 })
 
 export const initialData: Workout[] = [
@@ -57,9 +56,9 @@ export const initialData: Workout[] = [
         id: uuidv4(),
         name: "Squats",
         type: "work",
-        duration: 2,
+        duration: 5,
         sets: 0,
-        repetitions: 0,
+        repetitions: 0
       },
       {
         id: uuidv4(),
@@ -67,7 +66,7 @@ export const initialData: Workout[] = [
         type: "rest",
         duration: 2,
         sets: 0,
-        repetitions: 0,
+        repetitions: 0
       },
       {
         id: uuidv4(),
@@ -75,10 +74,10 @@ export const initialData: Workout[] = [
         type: "work",
         duration: 2,
         sets: 0,
-        repetitions: 0,
-      },
+        repetitions: 0
+      }
     ],
-    dateCreated: "2023-09-09T03:35:59.456Z",
+    dateCreated: "2023-09-09T03:35:59.456Z"
   },
   {
     id: uuidv4(),
@@ -94,7 +93,7 @@ export const initialData: Workout[] = [
         type: "work",
         duration: 0,
         sets: 3,
-        repetitions: 12,
+        repetitions: 12
       },
       {
         id: uuidv4(),
@@ -102,7 +101,7 @@ export const initialData: Workout[] = [
         type: "rest",
         duration: 3,
         sets: 0,
-        repetitions: 0,
+        repetitions: 0
       },
       {
         id: uuidv4(),
@@ -110,16 +109,16 @@ export const initialData: Workout[] = [
         type: "work",
         duration: 0,
         sets: 3,
-        repetitions: 12,
-      },
+        repetitions: 12
+      }
     ],
-    dateCreated: "2023-09-09T03:35:59.456Z",
-  },
+    dateCreated: "2023-09-09T03:35:59.456Z"
+  }
 ]
 
 const workoutsStorage = createJSONStorage<Workout[]>(() => sessionStorage)
 export const workoutsAtom = atomWithStorage<Workout[]>(
   "workouts",
   initialData,
-  workoutsStorage,
+  workoutsStorage
 )

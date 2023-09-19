@@ -1,8 +1,10 @@
 "use client"
 
 import Link from "next/link"
+
 import { motion } from "framer-motion"
 import { useAtom } from "jotai"
+
 import { workoutsAtom } from "@/store/workouts"
 
 export default function WorkoutList() {
@@ -26,10 +28,7 @@ export default function WorkoutList() {
 
         <ul className="line-clamp-3 h-full overflow-hidden">
           {item.exercises.map((ex) => (
-            <li
-              className={`text-sm opacity-50`}
-              key={ex.id}
-            >
+            <li className={`text-sm opacity-50`} key={ex.id}>
               - {ex.name}{" "}
               <span className="text-xs">
                 {ex.duration === 0

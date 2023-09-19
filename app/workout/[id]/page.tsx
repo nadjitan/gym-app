@@ -1,28 +1,33 @@
 "use client"
 
+import React, { useEffect, useMemo, useRef, useState } from "react"
 import { useRouter } from "next/navigation"
-import { Button } from "@/components/ui/button"
-import { workoutsAtom } from "@/store/workouts"
-import {
-  Play,
-  Square,
-  Pause,
-  ListRestart,
-  StepForward,
-  FileEdit,
-} from "lucide-react"
-import { useEffect, useRef, useState } from "react"
-import { Dumbbell, MoveLeft, ArrowRight } from "lucide-react"
+
 import {
   animate,
-  stagger,
-  motion,
-  Transition,
   AnimatePresence,
+  motion,
+  stagger,
+  Transition
 } from "framer-motion"
-import useTimer from "@/hooks/useTimer"
-import { ListButton } from "@/components/ui/list-button"
 import { useAtom } from "jotai"
+import {
+  ArrowRight,
+  Dumbbell,
+  FileEdit,
+  ListRestart,
+  MoveLeft,
+  Pause,
+  Play,
+  Square,
+  StepForward
+} from "lucide-react"
+
+import { workoutsAtom } from "@/store/workouts"
+import useCountdown from "@/hooks/useCountdown"
+
+import { Button } from "@/components/ui/button"
+import { ListButton } from "@/components/ui/list-button"
 
 interface SemicircleProgressBarProps {
   duration: number
@@ -30,11 +35,58 @@ interface SemicircleProgressBarProps {
   progress: number
 }
 
+function formatTime(progress: number) {
+  const hours = Math.floor(progress / 3600)
+  const minutes = Math.floor((progress % 3600) / 60)
+  const seconds = Math.floor(progress % 60)
+  const milliseconds = Math.floor((progress % 1) * 1000)
+
+  const Abbr: React.FC<{ text: string }> = ({ text }) => (
+    <span className="text-xs italic">{text}</span>
+  )
+
+  const formattedTime: JSX.Element[] = []
+  if (hours > 0)
+    formattedTime.push(
+      <span key="h">
+        {hours}
+        <Abbr text="h" />
+      </span>
+    )
+  if (minutes > 0)
+    formattedTime.push(
+      <span key="min">
+        {minutes}
+        <Abbr text="min" />
+      </span>
+    )
+  formattedTime.push(
+    <span key="sec">
+      {seconds}
+      <Abbr text="sec" />
+    </span>
+  )
+
+  if (milliseconds > 0)
+    formattedTime.push(
+      <span key="ms">
+        {milliseconds}
+        <Abbr text="ms" />
+      </span>
+    )
+
+  return <>{formattedTime.map((time) => time)}</>
+}
+
 const SemicircleProgressBar: React.FC<SemicircleProgressBarProps> = ({
   duration,
   isRest,
-  progress,
+  progress
 }) => {
+  const circleProgress = useMemo(
+    () => Math.round(198 * (progress / duration)),
+    [progress]
+  )
   return (
     <svg viewBox="11 15 88 88" className="h-full w-full" fill="currentColor">
       <path
@@ -47,10 +99,10 @@ const SemicircleProgressBar: React.FC<SemicircleProgressBarProps> = ({
       <path
         strokeLinecap="round"
         strokeDasharray={198}
-        strokeDashoffset={Math.round(198 * (progress / duration))}
+        strokeDashoffset={circleProgress}
         strokeWidth={6}
         fill="none"
-        className="stroke-green-600 transition-[stroke-dashoffset_.2s_cubic-bezier(.7,0,.3,1)]"
+        className="stroke-green-600"
         d="M30,90 A40,40 0 1,1 80,90"
       />
 
@@ -74,15 +126,14 @@ const SemicircleProgressBar: React.FC<SemicircleProgressBarProps> = ({
         />
       )}
 
-      <text
+      {/* <text
         x="62%"
         y="110%"
         dominantBaseline="middle"
         textAnchor="middle"
-        className="text-foreground"
       >
-        {progress !== -1 ? progress : 0}
-      </text>
+        {formatTime(progress)}
+      </text> */}
     </svg>
   )
 }
@@ -91,7 +142,7 @@ const staggerMenuItems = stagger(0.1, { startDelay: 0.15 })
 const springTransition: Transition = {
   type: "spring",
   stiffness: 700,
-  damping: 30,
+  damping: 30
 }
 
 export default function Workout({ params }: { params: { id: string } }) {
@@ -101,31 +152,33 @@ export default function Workout({ params }: { params: { id: string } }) {
   const [exercises] = useState(workout?.exercises!)
   const [exerciseIndex, setExerciseIndex] = useState(0)
   const [exercise, setExercise] = useState(exercises[exerciseIndex])
+  const isCountdown = exercise.duration > 0
 
   const itemElsRef = useRef<HTMLDivElement[]>([])
 
-  const { isActive, progress, setTime, startTimer, pauseTimer, resetTimer } =
-    useTimer(exercise.duration)
+  const { running, finished, setTime, start, pause, timeRemaining, reset } =
+    useCountdown(exercise.duration)
 
   function resetAll() {
-    resetTimer()
+    reset()
     setExerciseIndex(0)
     setExercise(exercises[0]!)
     setTime(exercises[0].duration)
     itemElsRef.current![0].scrollIntoView({
-      behavior: "smooth",
+      behavior: "smooth"
     })
   }
   function goNext() {
     const nextIndex = exerciseIndex + 1
     const nextExercise = exercises[nextIndex]!
     itemElsRef.current![nextIndex].scrollIntoView({
-      behavior: "smooth",
+      behavior: "smooth"
     })
-    setTime(nextExercise.duration!)
+    setTime(nextExercise.duration)
     setExerciseIndex(nextIndex)
     setExercise(nextExercise)
-    if (nextExercise.duration > 0) startTimer()
+    if (nextExercise.duration > 0) start()
+    console.log(nextIndex)
   }
 
   useEffect(() => {
@@ -135,20 +188,19 @@ export default function Workout({ params }: { params: { id: string } }) {
       {
         duration: 0.2,
         delay: staggerMenuItems,
-        type: "spring",
-      },
+        type: "spring"
+      }
     )
   }, [])
 
+  // Automatically change to next step if
+  // current exercise is a countdown
   useEffect(() => {
-    if (exercise.duration === 0) pauseTimer()
-  }, [exercise])
-
-  useEffect(() => {
-    if (progress === -1 && exerciseIndex === exercises.length! - 1) resetAll()
-
-    if (progress === -1 && exerciseIndex < exercises.length! - 1) goNext()
-  }, [progress])
+    if (isCountdown && finished) {
+      if (exerciseIndex < exercises.length! - 1) goNext()
+      if (exerciseIndex === exercises.length! - 1) resetAll()
+    }
+  }, [finished])
 
   return (
     <div className="flex h-full w-full flex-col gap-2 animate-in fade-in lg:max-w-6xl lg:flex-row">
@@ -158,7 +210,7 @@ export default function Workout({ params }: { params: { id: string } }) {
           <Button
             className="flex gap-2 md:text-lg"
             variant={"ghost"}
-            disabled={isActive}
+            disabled={running}
             onClick={() => router.replace("/")}
           >
             <MoveLeft /> Exit
@@ -167,7 +219,7 @@ export default function Workout({ params }: { params: { id: string } }) {
           <Button
             className="flex gap-2 md:text-lg"
             variant={"ghost"}
-            disabled={exerciseIndex === 0}
+            disabled={exerciseIndex <= 0}
             onClick={() => resetAll()}
           >
             <ListRestart /> Reset
@@ -182,7 +234,7 @@ export default function Workout({ params }: { params: { id: string } }) {
           {exercise.duration > 0 ? (
             <>
               <motion.div
-                className="h-max w-36 md:w-56 lg:w-80"
+                className="h-max relative w-36 md:w-56 lg:w-80"
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
                 exit={{ opacity: 0 }}
@@ -190,8 +242,11 @@ export default function Workout({ params }: { params: { id: string } }) {
                 <SemicircleProgressBar
                   duration={exercise.duration}
                   isRest={exercise.type === "rest"}
-                  progress={progress}
+                  progress={timeRemaining}
                 />
+                <h2 className="absolute text-2xl w-52 gap-1 items-center justify-center flex -bottom-5 md:text-4xl md:bottom-0 left-1/2 -translate-x-1/2">
+                  {formatTime(timeRemaining)}
+                </h2>
               </motion.div>
               <motion.h1 className="line-clamp-2 text-3xl font-semibold">
                 {exercise.name}
@@ -221,7 +276,7 @@ export default function Workout({ params }: { params: { id: string } }) {
             router.push(`/edit-workout/${workout!.id}`)
           }}
         >
-          <FileEdit /> Edit
+          <FileEdit className="w-5 h-5" /> Edit
         </Button>
       </section>
 
@@ -229,12 +284,12 @@ export default function Workout({ params }: { params: { id: string } }) {
         <div className="flex h-max gap-2">
           <Button
             className="flex h-[78px] w-full gap-2 px-0 py-8 text-lg"
-            {...(!isActive && progress === exercise.duration
+            {...(!running && timeRemaining === exercise.duration
               ? { disabled: true }
               : {})}
-            onClick={() => resetTimer()}
+            onClick={() => reset()}
             variant={
-              !isActive && progress === exercise.duration
+              !running && timeRemaining === exercise.duration
                 ? "outline"
                 : "destructive"
             }
@@ -243,24 +298,24 @@ export default function Workout({ params }: { params: { id: string } }) {
             Stop
           </Button>
 
-          {exercise.duration > 0 ? (
+          {isCountdown ? (
             <Button
               className="flex h-[78px] w-full gap-2 px-0 py-8 text-lg"
               onClick={() => {
-                if (isActive) pauseTimer()
-                else startTimer()
+                if (running) pause()
+                else start()
               }}
             >
-              {isActive ? (
+              {running ? (
                 <Pause fill="currentColor" />
               ) : (
                 <Play fill="currentColor" />
               )}
-              {!isActive && exerciseIndex === 0
+              {!running && exerciseIndex <= 0
                 ? "Start"
-                : !isActive && exerciseIndex > 0
+                : !running && exerciseIndex > 0
                 ? "Continue"
-                : isActive
+                : running
                 ? "Pause"
                 : null}
             </Button>
@@ -300,22 +355,19 @@ export default function Workout({ params }: { params: { id: string } }) {
                   className="h-14 w-full"
                   variant={"outline"}
                   onClick={() => {
-                    resetTimer()
+                    reset()
                     setExerciseIndex(i)
                     setExercise(ex)
                     setTime(ex.duration)
                   }}
                 >
                   {/* Children also needs `motion` to scale correctly during parent `layout` animations  */}
-                  <motion.p
-                    layout
-                    className="mr-2 w-10 text-end text-sm font-light"
-                  >
-                    {ex.duration === 0
+                  <motion.p className="mr-2 w-10 text-end text-sm font-light">
+                    {ex.duration <= 0
                       ? `${ex.sets}x${ex.repetitions}`
                       : `${ex.duration.toString()}s`}
                   </motion.p>
-                  <motion.h4 layout className="line-clamp-1 text-lg">
+                  <motion.h4 className="line-clamp-1 text-lg">
                     {ex.name}
                   </motion.h4>
                 </ListButton>

@@ -1,23 +1,25 @@
 import "./globals.css"
+
 import type { Metadata } from "next"
 import { Space_Grotesk } from "next/font/google"
-import { ThemeProvider } from "@/components/theme-provider"
+
 import JotaiProvider from "@/components/jotai-provider"
+import { ThemeProvider } from "@/components/theme-provider"
 
 const spaceGrotesk = Space_Grotesk({
   subsets: ["latin"],
   weight: ["300", "400", "500", "600", "700"],
   preload: false,
-  display: "swap",
+  display: "swap"
 })
 
 export const metadata: Metadata = {
   title: "Gym App",
-  description: "A fitness timer app",
+  description: "A fitness timer app"
 }
 
 export default function RootLayout({
-  children,
+  children
 }: {
   children: React.ReactNode
 }) {

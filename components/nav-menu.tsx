@@ -1,9 +1,16 @@
 "use client"
 
-import { useTheme } from "next-themes"
 import { useRouter } from "next/navigation"
-import { Moon, Sun, Menu, PlusCircle } from "lucide-react"
 
+import { Menu, Moon, PlusCircle, Sun } from "lucide-react"
+import { useTheme } from "next-themes"
+
+import {
+  Accordion,
+  AccordionContent,
+  AccordionItem,
+  AccordionTrigger
+} from "@/components/ui/accordion"
 import { Button } from "@/components/ui/button"
 import {
   DropdownMenu,
@@ -12,14 +19,8 @@ import {
   DropdownMenuItem,
   DropdownMenuLabel,
   DropdownMenuSeparator,
-  DropdownMenuTrigger,
+  DropdownMenuTrigger
 } from "@/components/ui/dropdown-menu"
-import {
-  Accordion,
-  AccordionContent,
-  AccordionItem,
-  AccordionTrigger,
-} from "@/components/ui/accordion"
 
 export function AccordionTheme() {
   const { setTheme, theme } = useTheme()

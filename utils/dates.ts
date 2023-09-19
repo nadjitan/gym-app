@@ -34,7 +34,7 @@ export function getRelativeTimeString(
     86400 * 7,
     86400 * 30,
     86400 * 365,
-    Infinity,
+    Infinity
   ]
 
   // Array equivalent to the above but in the string representation of the units
@@ -45,11 +45,13 @@ export function getRelativeTimeString(
     "day",
     "week",
     "month",
-    "year",
+    "year"
   ]
 
   // Grab the ideal cutoff unit
-  const unitIndex = cutoffs.findIndex(cutoff => cutoff > Math.abs(deltaSeconds))
+  const unitIndex = cutoffs.findIndex(
+    (cutoff) => cutoff > Math.abs(deltaSeconds)
+  )
 
   // Get the divisor to divide from the seconds. E.g. if our unit is "day" our divisor
   // is one day in seconds, so we can divide our seconds by this to get the # of days

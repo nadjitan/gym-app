@@ -1,6 +1,8 @@
+import { Dumbbell } from "lucide-react"
+
 import { NavMenu } from "@/components/nav-menu"
 import WorkoutList from "@/components/workouts/list"
-import { Dumbbell } from "lucide-react"
+
 // import {
 //   Tooltip,
 //   TooltipContent,

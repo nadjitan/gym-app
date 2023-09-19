@@ -1,28 +1,33 @@
 "use client"
 
-import { v4 as uuidv4 } from "uuid"
+import { useEffect, useRef } from "react"
 import { useRouter } from "next/navigation"
-import { Grip, ListRestart, PlusCircle, MoveLeft, Trash } from "lucide-react"
+
+import {
+  Exercise,
+  exerciseSchema,
+  Workout,
+  workoutsAtom,
+  workoutSchema
+} from "@/store/workouts"
+import { zodResolver } from "@hookform/resolvers/zod"
+import { AnimatePresence, Reorder, useDragControls } from "framer-motion"
 import { useAtom } from "jotai"
+import { Grip, ListRestart, MoveLeft, PlusCircle, Trash } from "lucide-react"
+import { useFieldArray, useForm, UseFormReturn } from "react-hook-form"
+import { v4 as uuidv4 } from "uuid"
+
+import { getLocalISODatetime } from "@/utils/dates"
+
+import { Button } from "@/components/ui/button"
 import {
   Form,
   FormControl,
   FormField,
   FormItem,
   FormLabel,
-  FormMessage,
+  FormMessage
 } from "@/components/ui/form"
-import { Button } from "@/components/ui/button"
-import {
-  Exercise,
-  Workout,
-  exerciseSchema,
-  workoutSchema,
-  workoutsAtom,
-} from "@/store/workouts"
-import { zodResolver } from "@hookform/resolvers/zod"
-import { UseFormReturn, useFieldArray, useForm } from "react-hook-form"
-import { getLocalISODatetime } from "@/utils/dates"
 import { Input } from "@/components/ui/input"
 import {
   Select,
@@ -30,12 +35,10 @@ import {
   SelectGroup,
   SelectItem,
   SelectTrigger,
-  SelectValue,
+  SelectValue
 } from "@/components/ui/select"
-import { AnimatePresence, Reorder, useDragControls } from "framer-motion"
-import { Textarea } from "@/components/ui/textarea"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { useEffect, useRef } from "react"
+import { Textarea } from "@/components/ui/textarea"
 
 const ExerciseItem: React.FC<{
   exercise: Exercise
@@ -59,7 +62,7 @@ const ExerciseItem: React.FC<{
       return () => {
         //@ts-ignore
         iTag.removeEventListener("touchstart", touchHandler, {
-          passive: false,
+          passive: false
         })
       }
     }
@@ -124,12 +127,12 @@ export const CreateWorkoutForm: React.FC = () => {
       description: "",
       exercises: [],
       target: "Abs",
-      title: "",
-    },
+      title: ""
+    }
   })
   const workoutExerciseField = useFieldArray({
     control: workoutForm.control,
-    name: "exercises",
+    name: "exercises"
   })
 
   const exerciseForm = useForm<Exercise>({
@@ -140,8 +143,8 @@ export const CreateWorkoutForm: React.FC = () => {
       name: "",
       repetitions: 1,
       sets: 1,
-      type: "rest",
-    },
+      type: "rest"
+    }
   })
 
   function onSubmit(values: Workout) {
@@ -393,7 +396,7 @@ export const CreateWorkoutForm: React.FC = () => {
 }
 
 export const EditWorkoutForm: React.FC<{ workoutId: string }> = ({
-  workoutId,
+  workoutId
 }) => {
   const [workouts, setWorkouts] = useAtom(workoutsAtom)
   const workout = workouts.find((item) => item.id === workoutId)
@@ -401,11 +404,11 @@ export const EditWorkoutForm: React.FC<{ workoutId: string }> = ({
 
   const workoutForm = useForm<Workout>({
     resolver: zodResolver(workoutSchema),
-    defaultValues: workout,
+    defaultValues: workout
   })
   const workoutExerciseField = useFieldArray({
     control: workoutForm.control,
-    name: "exercises",
+    name: "exercises"
   })
 
   const exerciseForm = useForm<Exercise>({
@@ -416,8 +419,8 @@ export const EditWorkoutForm: React.FC<{ workoutId: string }> = ({
       name: "",
       repetitions: 1,
       sets: 1,
-      type: "rest",
-    },
+      type: "rest"
+    }
   })
 
   function onSubmit(values: Workout) {
@@ -425,7 +428,7 @@ export const EditWorkoutForm: React.FC<{ workoutId: string }> = ({
       workouts.map((w) => {
         if (w.id === values.id) return values
         return w
-      }),
+      })
     )
     router.push(`/workout/${values.id}`)
   }

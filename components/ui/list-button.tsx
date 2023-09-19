@@ -1,4 +1,5 @@
 import * as React from "react"
+
 import { Slot } from "@radix-ui/react-slot"
 import { cva, type VariantProps } from "class-variance-authority"
 
@@ -11,20 +12,20 @@ const buttonVariants = cva(
       variant: {
         outline:
           "border border-input bg-background hover:bg-accent hover:text-accent-foreground",
-        ghost: "hover:bg-accent hover:text-accent-foreground",
+        ghost: "hover:bg-accent hover:text-accent-foreground"
       },
       size: {
         default: "h-10 px-4 py-2",
         sm: "h-9 rounded-md px-3",
         lg: "h-11 rounded-md px-8",
-        icon: "h-10 w-10",
-      },
+        icon: "h-10 w-10"
+      }
     },
     defaultVariants: {
       variant: "outline",
-      size: "default",
-    },
-  },
+      size: "default"
+    }
+  }
 )
 
 export interface ButtonProps
@@ -43,7 +44,7 @@ const ListButton = React.forwardRef<HTMLButtonElement, ButtonProps>(
         {...props}
       />
     )
-  },
+  }
 )
 ListButton.displayName = "ListButton"
 
