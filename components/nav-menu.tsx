@@ -110,7 +110,7 @@ export function NavMenu() {
 
           <DropdownMenuSeparator />
           <DropdownMenuLabel className="select-none text-center text-xs font-normal opacity-50">
-            app v 1.0
+            app v 1.1.0
           </DropdownMenuLabel>
         </DropdownMenuGroup>
       </DropdownMenuContent>
